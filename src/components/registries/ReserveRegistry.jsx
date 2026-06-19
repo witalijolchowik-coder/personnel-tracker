@@ -1,5 +1,6 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENT_STYLES } from '../../data/constants.js';
+import { formatDateTime } from '../../utils/dateUtils.js';
 
 export default function ReserveRegistry({ candidates, openDetailsModal, returnToMedicalFromReserve, assignBhpFromReserve, handleDeleteCandidate }) {
   return (
@@ -43,7 +44,7 @@ export default function ReserveRegistry({ candidates, openDetailsModal, returnTo
                     </span>
                 </td>
                 <td className="p-4 text-slate-300">{c.phone}</td>
-                <td className="p-4 text-slate-300">{c.assessmentDate || '-'}</td>
+                <td className="p-4 text-slate-300">{formatDateTime(c.displayAssessmentDate, c.displayAssessmentTime)}</td>
                 <td className="p-4 text-slate-300">{c.reserveDate || '-'}</td>
                 <td className="p-4">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold ${

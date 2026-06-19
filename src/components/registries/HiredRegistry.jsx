@@ -1,5 +1,6 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENT_STYLES } from '../../data/constants.js';
+import { formatDateTime } from '../../utils/dateUtils.js';
 
 export default function HiredRegistry({ candidates, openDetailsModal, handleDeleteCandidate }) {
   return (
@@ -44,9 +45,9 @@ export default function HiredRegistry({ candidates, openDetailsModal, handleDele
                     </span>
                 </td>
                 <td className="p-4 text-slate-300">{c.phone}</td>
-                <td className="p-4 text-slate-300">{c.assessmentDate || '-'}</td>
+                <td className="p-4 text-slate-300">{formatDateTime(c.displayAssessmentDate, c.displayAssessmentTime)}</td>
                 <td className="p-4 text-slate-300">{c.medicalDate || '-'}</td>
-                <td className="p-4 text-slate-300">{c.bhpDate || '-'}</td>
+                <td className="p-4 text-slate-300">{formatDateTime(c.bhpDate, c.bhpTime)}</td>
                 <td className="p-4 font-bold text-emerald-400">{c.hireDate || '-'}</td>
                 <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-2">
