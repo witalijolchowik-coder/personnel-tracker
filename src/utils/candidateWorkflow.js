@@ -1,5 +1,5 @@
 import { STAGE_LABELS } from '../data/constants.js';
-import { getCurrentDateOnlyString, getCurrentDateTimeString } from './dateUtils.js';
+import { formatDateTime, getCurrentDateOnlyString, getCurrentDateTimeString } from './dateUtils.js';
 
 export const createCandidateHistoryEntry = ({
   fromStage,
@@ -94,7 +94,7 @@ export const rollbackCandidateStage = (candidate) => {
   } else if (candidate.stage === 'bhp') {
     previousStage = 'medical';
     nextStatus = 'Oczekuje';
-    fieldsToClear = { bhpDate: null };
+    fieldsToClear = { bhpDate: null, bhpTime: null };
   } else {
     return candidate;
   }
@@ -122,14 +122,14 @@ export const returnToMedicalFromReserve = (candidate) => {
   return { ...candidate, stage: 'medical', status: 'Oczekuje', history: [historyEntry, ...(candidate.history || [])], reserveDate: null, reserveStatus: null };
 };
 
-export const assignBhpAfterMedical = (candidate, bhpDate) => {
+export const assignBhpAfterMedical = (candidate, bhpDate, bhpTime = '') => {
   const currentDate = getCurrentDateOnlyString();
   const medicalDate = candidate.medicalDate || currentDate;
   const historyEntry = createCandidateHistoryEntry({
     fromStage: 'Badania lekarskie',
     toStage: 'BHP i zatrudnienie',
     fromStatus: candidate.status,
-    toStatus: 'Oczekuje, Data BHP: ' + bhpDate + ', bezpośrednio po badaniach',
+    toStatus: 'Oczekuje, Data BHP: ' + formatDateTime(bhpDate, bhpTime) + ', bezpośrednio po badaniach',
     actionType: 'candidate_assign_bhp',
   });
 
@@ -139,7 +139,8 @@ export const assignBhpAfterMedical = (candidate, bhpDate) => {
     status: 'Oczekuje',
     medicalDate,
     bhpDate,
-    history: [{ ...historyEntry, bhpDate, source: 'medical' }, ...(candidate.history || [])],
+    bhpTime,
+    history: [{ ...historyEntry, bhpDate, bhpTime, source: 'medical' }, ...(candidate.history || [])],
   };
 };
 
@@ -165,12 +166,12 @@ export const sendPassedMedicalToReserve = (candidate) => {
   };
 };
 
-export const assignBhpFromReserveWithDate = (candidate, bhpDate) => {
+export const assignBhpFromReserveWithDate = (candidate, bhpDate, bhpTime = '') => {
   const historyEntry = createCandidateHistoryEntry({
     fromStage: 'Rezerwa',
     toStage: 'BHP i zatrudnienie',
     fromStatus: candidate.status,
-    toStatus: 'Oczekuje, Data BHP: ' + bhpDate + ', z rezerwy',
+    toStatus: 'Oczekuje, Data BHP: ' + formatDateTime(bhpDate, bhpTime) + ', z rezerwy',
     actionType: 'candidate_assign_bhp',
   });
 
@@ -179,7 +180,8 @@ export const assignBhpFromReserveWithDate = (candidate, bhpDate) => {
     stage: 'bhp',
     status: 'Oczekuje',
     bhpDate,
-    history: [{ ...historyEntry, bhpDate, source: 'reserve' }, ...(candidate.history || [])],
+    bhpTime,
+    history: [{ ...historyEntry, bhpDate, bhpTime, source: 'reserve' }, ...(candidate.history || [])],
     reserveDate: null,
     reserveStatus: null,
   };

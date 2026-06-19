@@ -33,3 +33,10 @@ export const getCurrentIsoString = () => {
 
   return year + '-' + month + '-' + day + 'T' + hours + ':' + minutes + ':' + seconds + '.' + milliseconds + sign + offsetHours + ':' + offsetRemainderMinutes;
 };
+
+export const formatDateTime = (date, time) => {
+  if (date && time) return date + ' ' + time;
+  if (date) return date;
+  if (time) return time;
+  return '-';
+};
