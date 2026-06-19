@@ -1,0 +1,32 @@
+import Icons from '../ui/Icons.jsx';
+import CandidateCard from '../candidates/CandidateCard.jsx';
+
+const styles = {
+  assessment: { border: 'border-t-blue-500', dot: 'bg-blue-500', count: 'bg-blue-900/40 text-blue-300 border-blue-500/20' },
+  medical: { border: 'border-t-amber-500', dot: 'bg-amber-500', count: 'bg-amber-900/40 text-amber-300 border-amber-500/20' },
+  bhp: { border: 'border-t-emerald-500', dot: 'bg-emerald-500', count: 'bg-emerald-900/40 text-emerald-300 border-emerald-500/20' },
+};
+
+export default function KanbanColumn({ stage, title, candidates, onStatusChange, onEdit, onDelete, onViewDetails, onRollback, onAddCandidate }) {
+  const tone = styles[stage];
+  return (
+    <div className={`bg-slate-900 border-t-4 ${tone.border} border-x border-b border-slate-800 rounded-xl flex flex-col overflow-hidden shadow-xl transition-all duration-300`}>
+      <div className="p-4 border-b border-slate-800 bg-slate-950/40 flex items-center justify-between">
+        <div className="flex items-center gap-2"><span className={`w-2 h-2 rounded-full ${tone.dot} animate-pulse`} /><h3 className="font-bold text-slate-200 text-sm tracking-wide">{title}</h3></div>
+        <span className={`${tone.count} border text-xs font-bold px-2.5 py-0.5 rounded-full`}>{candidates.length}</span>
+      </div>
+      <div className="p-3 flex-1 flex flex-col gap-3 min-h-[350px] max-h-[500px] overflow-y-auto bg-slate-900/40">
+        {candidates.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full py-16 text-slate-600"><p className="text-xs font-medium">Brak kandydatów na tym etapie</p></div>
+        ) : candidates.map(candidate => (
+          <CandidateCard key={candidate.id} candidate={candidate} onStatusChange={onStatusChange} onEdit={onEdit} onDelete={onDelete} onViewDetails={onViewDetails} onRollback={onRollback} />
+        ))}
+        {stage === 'assessment' && (
+          <div className="mt-auto pt-2">
+            <button onClick={onAddCandidate} className="w-full py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-300 hover:text-indigo-200 font-bold text-xs tracking-wider uppercase transition-all rounded-lg border border-indigo-500/20 hover:border-indigo-500/45 flex items-center justify-center gap-2 shadow-lg shadow-indigo-950/10 active:scale-[0.98]"><Icons.UserAdd /><span>Dodaj kandydata</span></button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
