@@ -1,6 +1,6 @@
 import Icons from '../ui/Icons.jsx';
 
-export default function BhpDateModal({ candidate, bhpDate, setBhpDate, source, onConfirm, onSendToReserve, onClose }) {
+export default function BhpDateModal({ candidate, bhpDate, setBhpDate, bhpTime, setBhpTime, source, onConfirm, onSendToReserve, onClose }) {
   if (!candidate) return null;
 
   return (
@@ -23,6 +23,15 @@ export default function BhpDateModal({ candidate, bhpDate, setBhpDate, source, o
               className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
               value={bhpDate}
               onChange={(event) => setBhpDate(event.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Godzina BHP</label>
+            <input
+              type="time"
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
+              value={bhpTime}
+              onChange={(event) => setBhpTime(event.target.value)}
             />
           </div>
         </div>

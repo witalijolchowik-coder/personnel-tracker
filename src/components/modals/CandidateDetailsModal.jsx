@@ -1,5 +1,6 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENT_STYLES } from '../../data/constants.js';
+import { formatDateTime } from '../../utils/dateUtils.js';
 
 export default function CandidateDetailsModal({ candidate, onClose }) {
   if (!candidate) return null;
@@ -46,7 +47,7 @@ export default function CandidateDetailsModal({ candidate, onClose }) {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="p-3 bg-slate-950/40 rounded-lg border border-slate-800/60 text-center">
     <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Data AC</div>
-    <div className="text-xs font-semibold text-white">{candidate.assessmentDate || '-'}</div>
+    <div className="text-xs font-semibold text-white">{formatDateTime(candidate.displayAssessmentDate, candidate.displayAssessmentTime)}</div>
                         </div>
                         <div className="p-3 bg-slate-950/40 rounded-lg border border-slate-800/60 text-center">
     <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Medycyna Pracy</div>
@@ -54,7 +55,7 @@ export default function CandidateDetailsModal({ candidate, onClose }) {
                         </div>
                         <div className="p-3 bg-slate-950/40 rounded-lg border border-slate-800/60 text-center">
     <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Szkolenie BHP</div>
-    <div className="text-xs font-semibold text-white">{candidate.bhpDate || '-'}</div>
+    <div className="text-xs font-semibold text-white">{formatDateTime(candidate.bhpDate, candidate.bhpTime)}</div>
                         </div>
                         <div className="p-3 bg-slate-950/40 rounded-lg border border-slate-800/60 text-center">
     <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Zatrudnienie</div>

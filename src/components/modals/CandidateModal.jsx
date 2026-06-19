@@ -1,7 +1,8 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENTS } from '../../data/constants.js';
+import { formatDateTime } from '../../utils/dateUtils.js';
 
-export default function CandidateModal({ isOpen, editingCandidate, handleSubmitForm, activeOrders, selectedOrderSelection, setSelectedOrderSelection, getOrderRealization, formFirstName, setFormFirstName, formLastName, setFormLastName, formBirthDate, setFormBirthDate, formPhone, setFormPhone, formAssessmentDate, setFormAssessmentDate, formDepartment, setFormDepartment, onClose }) {
+export default function CandidateModal({ isOpen, editingCandidate, handleSubmitForm, activeOrders, selectedOrderSelection, setSelectedOrderSelection, getOrderRealization, formFirstName, setFormFirstName, formLastName, setFormLastName, formBirthDate, setFormBirthDate, formPhone, setFormPhone, formAssessmentDate, setFormAssessmentDate, formAssessmentTime, setFormAssessmentTime, formDepartment, setFormDepartment, onClose }) {
   if (!isOpen) return null;
   return (
         <div className="fixed inset-0 z-[100] overflow-y-auto flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
@@ -80,7 +81,8 @@ export default function CandidateModal({ isOpen, editingCandidate, handleSubmitF
                 onClick={() => {
                     setSelectedOrderSelection(order.id);
                     setFormDepartment(order.department);
-                    setFormAssessmentDate(order.assessmentDate);
+                    setFormAssessmentDate('');
+                    setFormAssessmentTime('');
                 }}
                 className={`p-2 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between h-[68px] ${
                     isSelected 
@@ -90,7 +92,7 @@ export default function CandidateModal({ isOpen, editingCandidate, handleSubmitF
             >
                 <div>
                     <div className="font-extrabold text-[10px] text-white uppercase truncate">{order.department}</div>
-                    <div className="text-[8px] text-slate-400 mt-0.5">AC: {order.assessmentDate}</div>
+                    <div className="text-[8px] text-slate-400 mt-0.5">AC: {formatDateTime(order.assessmentDate, order.assessmentTime)}</div>
                 </div>
                 <div className="text-[9px] font-black text-indigo-400 border-t border-slate-850 pt-0.5 mt-1">
                     {currentCount} / {order.count} os.
@@ -111,7 +113,7 @@ export default function CandidateModal({ isOpen, editingCandidate, handleSubmitF
         }`}
     >
         <div className="font-extrabold text-[10px] text-white uppercase tracking-wider">Wprowadź ręcznie</div>
-        <div className="text-[8px] text-slate-500 mt-0.5 leading-tight">Własny dział i data</div>
+        <div className="text-[8px] text-slate-500 mt-0.5 leading-tight">Własny dział, data i godzina</div>
     </div>
                         </div>
                     </div>
@@ -120,10 +122,9 @@ export default function CandidateModal({ isOpen, editingCandidate, handleSubmitF
                     {selectedOrderSelection === "manual" && (
                         <div className="grid grid-cols-2 gap-4 pt-1 transition-all duration-300">
     <div>
-        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Data AC *</label>
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Data AC</label>
         <input 
             type="date" 
-            required
             className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
             value={formAssessmentDate}
             onChange={(e) => setFormAssessmentDate(e.target.value)}
@@ -140,6 +141,15 @@ export default function CandidateModal({ isOpen, editingCandidate, handleSubmitF
                 <option key={dept} value={dept}>{dept}</option>
             ))}
         </select>
+    </div>
+    <div>
+        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Godzina AC</label>
+        <input
+            type="time"
+            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
+            value={formAssessmentTime}
+            onChange={(e) => setFormAssessmentTime(e.target.value)}
+        />
     </div>
                         </div>
                     )}

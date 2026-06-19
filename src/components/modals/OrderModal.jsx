@@ -2,7 +2,7 @@ import Icons from '../ui/Icons.jsx';
 import { DEPARTMENTS } from '../../data/constants.js';
 import { ORDER_GENDERS } from '../../utils/orderUtils.js';
 
-export default function OrderModal({ isOpen, editingOrder, saveOrder, orderDept, setOrderDept, orderCount, setOrderCount, orderGender, setOrderGender, orderACDate, setOrderACDate, triggerDeleteOrder, onClose }) {
+export default function OrderModal({ isOpen, editingOrder, saveOrder, orderDept, setOrderDept, orderCount, setOrderCount, orderGender, setOrderGender, orderACDate, setOrderACDate, orderACTime, setOrderACTime, triggerDeleteOrder, onClose }) {
   if (!isOpen) return null;
   return (
         <div className="fixed inset-0 z-[100] overflow-y-auto flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
@@ -60,15 +60,25 @@ export default function OrderModal({ isOpen, editingOrder, saveOrder, orderDept,
                         </div>
                     </div>
     
-                    <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Data AC *</label>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Data AC</label>
                         <input 
     type="date" 
-    required
     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
     value={orderACDate}
     onChange={(e) => setOrderACDate(e.target.value)}
                         />
+                        </div>
+                        <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Godzina AC</label>
+                        <input
+    type="time"
+    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
+    value={orderACTime}
+    onChange={(e) => setOrderACTime(e.target.value)}
+                        />
+                        </div>
                     </div>
     
                     <div className="pt-4 border-t border-slate-850 flex items-center justify-between gap-3">
