@@ -5,7 +5,7 @@ import { createCandidateDocument, deleteCandidateDocument, subscribeToCandidates
 import { createCandidateHistoryEntry } from '../utils/candidateWorkflow.js';
 import { generateId } from '../utils/idUtils.js';
 
-const EDIT_HISTORY_FIELDS = ['firstName', 'lastName', 'birthDate', 'phone', 'department', 'assessmentDate'];
+const EDIT_HISTORY_FIELDS = ['firstName', 'lastName', 'birthDate', 'phone', 'department', 'orderId', 'assessmentDate', 'assessmentTime'];
 
 const hasChangedFields = (candidate, patch, fields) => fields.some(field => (
   Object.prototype.hasOwnProperty.call(patch, field) && candidate[field] !== patch[field]
@@ -14,7 +14,10 @@ const hasChangedFields = (candidate, patch, fields) => fields.some(field => (
 const normalizeCandidate = (candidate) => ({
   medicalDate: null,
   bhpDate: null,
+  bhpTime: null,
   hireDate: null,
+  orderId: null,
+  assessmentTime: '',
   reserveDate: null,
   reserveStatus: null,
   rejectionStage: null,

@@ -10,6 +10,7 @@ const normalizeOrder = (order) => ({
   ...order,
   id: order.id || generateId('order'),
   gender: normalizeOrderGender(order.gender),
+  assessmentTime: order.assessmentTime || '',
 });
 
 const buildNewOrder = (orderData) => normalizeOrder({
