@@ -3,7 +3,7 @@ import { STAGE_LABELS } from './data/constants.js';
 import { useCandidates } from './hooks/useCandidates.js';
 import { useOrders } from './hooks/useOrders.js';
 import { getCurrentDateOnlyString } from './utils/dateUtils.js';
-import { calculateOrderRealization, normalizeOrderGender, splitOrdersByActivity } from './utils/orderUtils.js';
+import { calculateOrderRealization, getCandidateAssessmentDate, getCandidateAssessmentTime, normalizeOrderGender, splitOrdersByActivity } from './utils/orderUtils.js';
 import { assignBhpAfterMedical, assignBhpFromReserveWithDate, changeCandidateStatus, restoreCandidateFromRejections, returnToMedicalFromReserve as returnToMedicalFromReserveWorkflow, rollbackCandidateStage, sendPassedMedicalToReserve } from './utils/candidateWorkflow.js';
 import { useAuth } from './hooks/useAuth.jsx';
 import LoginScreen from './components/auth/LoginScreen.jsx';
@@ -45,6 +45,7 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   const [orderCount, setOrderCount] = useState(1);
   const [orderGender, setOrderGender] = useState('Mężczyźni i kobiety');
   const [orderACDate, setOrderACDate] = useState('');
+  const [orderACTime, setOrderACTime] = useState('');
   const [repeatingOrder, setRepeatingOrder] = useState(null);
   const [repeatNewDate, setRepeatNewDate] = useState('');
   const [restoringCandidate, setRestoringCandidate] = useState(null);
@@ -52,6 +53,7 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   const [bhpCandidate, setBhpCandidate] = useState(null);
   const [bhpModalSource, setBhpModalSource] = useState(null);
   const [bhpDate, setBhpDate] = useState('');
+  const [bhpTime, setBhpTime] = useState('');
   const [isSeedConfirmOpen, setIsSeedConfirmOpen] = useState(false);
   const [confirmDeleteOrderModal, setConfirmDeleteOrderModal] = useState({ show: false, id: null });
   const [isClearArchiveConfirmOpen, setIsClearArchiveConfirmOpen] = useState(false);
@@ -62,6 +64,7 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   const [formBirthDate, setFormBirthDate] = useState('');
   const [formPhone, setFormPhone] = useState('');
   const [formAssessmentDate, setFormAssessmentDate] = useState('');
+  const [formAssessmentTime, setFormAssessmentTime] = useState('');
   const [formDepartment, setFormDepartment] = useState('Metal');
   const [selectedOrderSelection, setSelectedOrderSelection] = useState('manual');
 
@@ -73,12 +76,18 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   const todayDateStr = getCurrentDateOnlyString();
   const { activeOrders, inactiveOrders } = useMemo(() => splitOrdersByActivity(orders, todayDateStr), [orders, todayDateStr]);
   const getOrderRealization = (order) => calculateOrderRealization(order, candidates);
+  const candidatesForDisplay = useMemo(() => candidates.map(candidate => ({
+    ...candidate,
+    displayAssessmentDate: getCandidateAssessmentDate(candidate, orders),
+    displayAssessmentTime: getCandidateAssessmentTime(candidate, orders),
+  })), [candidates, orders]);
 
   const handleStatusChange = (candidate, newStatus) => {
     if (candidate.stage === 'medical' && newStatus === 'Przeszedł') {
       setBhpCandidate(candidate);
       setBhpModalSource('medical');
       setBhpDate(candidate.bhpDate || '');
+      setBhpTime(candidate.bhpTime || '08:00');
       return;
     }
     applyCandidateWorkflow(candidate.id, currentCandidate => changeCandidateStatus(currentCandidate, newStatus));
@@ -99,19 +108,21 @@ function AuthenticatedApp({ currentUser, onLogout }) {
     setBhpCandidate(candidate);
     setBhpModalSource('reserve');
     setBhpDate(candidate.bhpDate || '');
+    setBhpTime(candidate.bhpTime || '08:00');
   };
   const closeBhpModal = () => {
     setBhpCandidate(null);
     setBhpModalSource(null);
     setBhpDate('');
+    setBhpTime('');
   };
   const executeBhpAssignment = () => {
     if (!bhpCandidate || !bhpDate) { showAlert('Wybierz datę BHP.', 'info'); return; }
     if (bhpModalSource === 'reserve') {
-      applyCandidateWorkflow(bhpCandidate.id, currentCandidate => assignBhpFromReserveWithDate(currentCandidate, bhpDate));
+      applyCandidateWorkflow(bhpCandidate.id, currentCandidate => assignBhpFromReserveWithDate(currentCandidate, bhpDate, bhpTime));
       showAlert('Skierowano ' + bhpCandidate.firstName + ' ' + bhpCandidate.lastName + ' z rezerwy na BHP.', 'success');
     } else {
-      applyCandidateWorkflow(bhpCandidate.id, currentCandidate => assignBhpAfterMedical(currentCandidate, bhpDate));
+      applyCandidateWorkflow(bhpCandidate.id, currentCandidate => assignBhpAfterMedical(currentCandidate, bhpDate, bhpTime));
       showAlert('Wyznaczono BHP dla kandydata ' + bhpCandidate.firstName + ' ' + bhpCandidate.lastName + '.', 'success');
     }
     closeBhpModal();
@@ -131,15 +142,15 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   };
 
   const openAddModal = () => {
-    setEditingCandidate(null); setFormFirstName(''); setFormLastName(''); setFormBirthDate(''); setFormPhone('');
+    setEditingCandidate(null); setFormFirstName(''); setFormLastName(''); setFormBirthDate(''); setFormPhone(''); setFormAssessmentTime('');
     const firstOrder = activeOrders[0];
-    if (firstOrder) { setSelectedOrderSelection(firstOrder.id); setFormDepartment(firstOrder.department); setFormAssessmentDate(firstOrder.assessmentDate); }
+    if (firstOrder) { setSelectedOrderSelection(firstOrder.id); setFormDepartment(firstOrder.department); setFormAssessmentDate(''); setFormAssessmentTime(''); }
     else { setSelectedOrderSelection('manual'); setFormDepartment('Metal'); setFormAssessmentDate(''); }
     setIsAddEditModalOpen(true);
   };
   const openEditModal = (candidate, event) => {
     if (event) event.stopPropagation();
-    setEditingCandidate(candidate); setFormFirstName(candidate.firstName); setFormLastName(candidate.lastName); setFormBirthDate(candidate.birthDate || ''); setFormPhone(candidate.phone); setFormAssessmentDate(candidate.assessmentDate || ''); setFormDepartment(candidate.department); setSelectedOrderSelection('manual'); setIsAddEditModalOpen(true);
+    setEditingCandidate(candidate); setFormFirstName(candidate.firstName); setFormLastName(candidate.lastName); setFormBirthDate(candidate.birthDate || ''); setFormPhone(candidate.phone); setFormAssessmentDate(candidate.assessmentDate || ''); setFormAssessmentTime(candidate.assessmentTime || ''); setFormDepartment(candidate.department); setSelectedOrderSelection(candidate.orderId || 'manual'); setIsAddEditModalOpen(true);
   };
   const handleDeleteCandidate = (candidateId, event) => {
     if (event) event.stopPropagation();
@@ -153,7 +164,17 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   };
   const handleSubmitForm = (event) => {
     event.preventDefault();
-    const candidateData = { firstName: formFirstName, lastName: formLastName, birthDate: formBirthDate, phone: formPhone, assessmentDate: formAssessmentDate, department: formDepartment };
+    const selectedOrder = selectedOrderSelection === 'manual' ? null : orders.find(order => order.id === selectedOrderSelection);
+    const candidateData = {
+      firstName: formFirstName,
+      lastName: formLastName,
+      birthDate: formBirthDate,
+      phone: formPhone,
+      department: selectedOrder ? selectedOrder.department : formDepartment,
+      orderId: selectedOrder ? selectedOrder.id : null,
+      assessmentDate: selectedOrder ? null : formAssessmentDate,
+      assessmentTime: selectedOrder ? null : formAssessmentTime,
+    };
     if (editingCandidate) {
       updateCandidate(editingCandidate.id, candidateData);
       showAlert('Zaktualizowano dane kandydata.', 'success');
@@ -164,11 +185,11 @@ function AuthenticatedApp({ currentUser, onLogout }) {
     setIsAddEditModalOpen(false);
   };
 
-  const openAddOrderModal = () => { setEditingOrder(null); setOrderDept('Metal'); setOrderCount(1); setOrderGender('Mężczyźni i kobiety'); setOrderACDate(''); setIsOrderModalOpen(true); };
-  const openEditOrderModal = (order) => { setEditingOrder(order); setOrderDept(order.department); setOrderCount(order.count); setOrderGender(normalizeOrderGender(order.gender)); setOrderACDate(order.assessmentDate); setIsOrderModalOpen(true); };
+  const openAddOrderModal = () => { setEditingOrder(null); setOrderDept('Metal'); setOrderCount(1); setOrderGender('Mężczyźni i kobiety'); setOrderACDate(''); setOrderACTime(''); setIsOrderModalOpen(true); };
+  const openEditOrderModal = (order) => { setEditingOrder(order); setOrderDept(order.department); setOrderCount(order.count); setOrderGender(normalizeOrderGender(order.gender)); setOrderACDate(order.assessmentDate || ''); setOrderACTime(order.assessmentTime || ''); setIsOrderModalOpen(true); };
   const saveOrder = (event) => {
     event.preventDefault();
-    const orderData = { department: orderDept, count: Number(orderCount), gender: normalizeOrderGender(orderGender), assessmentDate: orderACDate };
+    const orderData = { department: orderDept, count: Number(orderCount), gender: normalizeOrderGender(orderGender), assessmentDate: orderACDate, assessmentTime: orderACTime };
     if (editingOrder) { updateOrder(editingOrder.id, orderData); showAlert('Zamówienie zostało zaktualizowane.', 'success'); }
     else { createOrder(orderData); showAlert('Dodano nowe zapotrzebowanie.', 'success'); }
     setIsOrderModalOpen(false);
@@ -185,12 +206,12 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   };
   const executeSeedData = () => { seedCandidates(); seedOrders(); setIsSeedConfirmOpen(false); showAlert('Załadowano dane testowe.', 'info'); };
 
-  const reserveCandidates = useMemo(() => candidates.filter(candidate => candidate.stage === 'reserve'), [candidates]);
-  const hiredCandidates = useMemo(() => candidates.filter(candidate => candidate.stage === 'hired'), [candidates]);
-  const rejectedCandidates = useMemo(() => candidates.filter(candidate => candidate.stage === 'rejected'), [candidates]);
-  const kanbanAssessment = useMemo(() => candidates.filter(candidate => candidate.stage === 'assessment'), [candidates]);
-  const kanbanMedical = useMemo(() => candidates.filter(candidate => candidate.stage === 'medical'), [candidates]);
-  const kanbanBhp = useMemo(() => candidates.filter(candidate => candidate.stage === 'bhp'), [candidates]);
+  const reserveCandidates = useMemo(() => candidatesForDisplay.filter(candidate => candidate.stage === 'reserve'), [candidatesForDisplay]);
+  const hiredCandidates = useMemo(() => candidatesForDisplay.filter(candidate => candidate.stage === 'hired'), [candidatesForDisplay]);
+  const rejectedCandidates = useMemo(() => candidatesForDisplay.filter(candidate => candidate.stage === 'rejected'), [candidatesForDisplay]);
+  const kanbanAssessment = useMemo(() => candidatesForDisplay.filter(candidate => candidate.stage === 'assessment'), [candidatesForDisplay]);
+  const kanbanMedical = useMemo(() => candidatesForDisplay.filter(candidate => candidate.stage === 'medical'), [candidatesForDisplay]);
+  const kanbanBhp = useMemo(() => candidatesForDisplay.filter(candidate => candidate.stage === 'bhp'), [candidatesForDisplay]);
   const filterRegistryList = (list) => list.filter(candidate => {
     const query = registrySearchQuery.toLowerCase().trim();
     const matchesSearch = !query || candidate.firstName.toLowerCase().includes(query) || candidate.lastName.toLowerCase().includes(query) || candidate.phone.includes(query);
@@ -202,6 +223,13 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   const filteredRejectedCandidates = useMemo(() => filterRegistryList(rejectedCandidates), [rejectedCandidates, registrySearchQuery, registrySelectedDept]);
   const isDataLoading = candidatesLoading || ordersLoading;
   const dataError = candidatesError || ordersError;
+  const selectedEditingOrder = editingCandidate?.orderId ? orders.find(order => order.id === editingCandidate.orderId) : null;
+  const candidateOrderOptions = selectedEditingOrder && !activeOrders.some(order => order.id === selectedEditingOrder.id)
+    ? [selectedEditingOrder, ...activeOrders]
+    : activeOrders;
+  const activeViewingCandidate = viewingCandidate
+    ? candidatesForDisplay.find(candidate => candidate.id === viewingCandidate.id) || viewingCandidate
+    : null;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col pb-16">
@@ -223,12 +251,12 @@ function AuthenticatedApp({ currentUser, onLogout }) {
         <RegistriesSection registrySearchQuery={registrySearchQuery} setRegistrySearchQuery={setRegistrySearchQuery} registrySelectedDept={registrySelectedDept} setRegistrySelectedDept={setRegistrySelectedDept} filteredReserveCandidates={filteredReserveCandidates} filteredHiredCandidates={filteredHiredCandidates} filteredRejectedCandidates={filteredRejectedCandidates} openDetailsModal={setViewingCandidate} returnToMedicalFromReserve={returnToMedicalFromReserve} assignBhpFromReserve={assignBhpFromReserve} openRestoreModal={openRestoreModal} handleDeleteCandidate={handleDeleteCandidate} />
       </main>
       <footer className="mt-auto pt-16 pb-8 text-center text-xs text-slate-500 flex flex-col items-center gap-3"><p>© 2026 Personnel Tracker. Profesjonalne narzędzie operacyjne HR.</p>{import.meta.env.DEV && <button onClick={() => setIsSeedConfirmOpen(true)} className="text-[10px] text-slate-600 hover:text-slate-400 font-medium uppercase tracking-wider transition-colors border border-slate-800/80 rounded-md px-2.5 py-1 bg-slate-950/40 hover:bg-slate-900/40">Załaduj dane testowe</button>}</footer>
-      <CandidateModal isOpen={isAddEditModalOpen} editingCandidate={editingCandidate} handleSubmitForm={handleSubmitForm} activeOrders={activeOrders} selectedOrderSelection={selectedOrderSelection} setSelectedOrderSelection={setSelectedOrderSelection} getOrderRealization={getOrderRealization} formFirstName={formFirstName} setFormFirstName={setFormFirstName} formLastName={formLastName} setFormLastName={setFormLastName} formBirthDate={formBirthDate} setFormBirthDate={setFormBirthDate} formPhone={formPhone} setFormPhone={setFormPhone} formAssessmentDate={formAssessmentDate} setFormAssessmentDate={setFormAssessmentDate} formDepartment={formDepartment} setFormDepartment={setFormDepartment} onClose={() => setIsAddEditModalOpen(false)} />
-      <CandidateDetailsModal candidate={viewingCandidate} onClose={() => setViewingCandidate(null)} />
-      <OrderModal isOpen={isOrderModalOpen} editingOrder={editingOrder} saveOrder={saveOrder} orderDept={orderDept} setOrderDept={setOrderDept} orderCount={orderCount} setOrderCount={setOrderCount} orderGender={orderGender} setOrderGender={setOrderGender} orderACDate={orderACDate} setOrderACDate={setOrderACDate} triggerDeleteOrder={triggerDeleteOrder} onClose={() => setIsOrderModalOpen(false)} />
+      <CandidateModal isOpen={isAddEditModalOpen} editingCandidate={editingCandidate} handleSubmitForm={handleSubmitForm} activeOrders={candidateOrderOptions} selectedOrderSelection={selectedOrderSelection} setSelectedOrderSelection={setSelectedOrderSelection} getOrderRealization={getOrderRealization} formFirstName={formFirstName} setFormFirstName={setFormFirstName} formLastName={formLastName} setFormLastName={setFormLastName} formBirthDate={formBirthDate} setFormBirthDate={setFormBirthDate} formPhone={formPhone} setFormPhone={setFormPhone} formAssessmentDate={formAssessmentDate} setFormAssessmentDate={setFormAssessmentDate} formAssessmentTime={formAssessmentTime} setFormAssessmentTime={setFormAssessmentTime} formDepartment={formDepartment} setFormDepartment={setFormDepartment} onClose={() => setIsAddEditModalOpen(false)} />
+      <CandidateDetailsModal candidate={activeViewingCandidate} onClose={() => setViewingCandidate(null)} />
+      <OrderModal isOpen={isOrderModalOpen} editingOrder={editingOrder} saveOrder={saveOrder} orderDept={orderDept} setOrderDept={setOrderDept} orderCount={orderCount} setOrderCount={setOrderCount} orderGender={orderGender} setOrderGender={setOrderGender} orderACDate={orderACDate} setOrderACDate={setOrderACDate} orderACTime={orderACTime} setOrderACTime={setOrderACTime} triggerDeleteOrder={triggerDeleteOrder} onClose={() => setIsOrderModalOpen(false)} />
       <RepeatOrderModal order={repeatingOrder} repeatNewDate={repeatNewDate} setRepeatNewDate={setRepeatNewDate} onClose={() => setRepeatingOrder(null)} onConfirm={executeRepeatOrder} />
       <RestoreCandidateModal candidate={restoringCandidate} restoreNewDate={restoreNewDate} setRestoreNewDate={setRestoreNewDate} onClose={() => setRestoringCandidate(null)} onConfirm={executeRestoreFromRejections} />
-      <BhpDateModal candidate={bhpCandidate} bhpDate={bhpDate} setBhpDate={setBhpDate} source={bhpModalSource} onConfirm={executeBhpAssignment} onSendToReserve={executeSendPassedMedicalToReserve} onClose={closeBhpModal} />
+      <BhpDateModal candidate={bhpCandidate} bhpDate={bhpDate} setBhpDate={setBhpDate} bhpTime={bhpTime} setBhpTime={setBhpTime} source={bhpModalSource} onConfirm={executeBhpAssignment} onSendToReserve={executeSendPassedMedicalToReserve} onClose={closeBhpModal} />
       <ConfirmModal isOpen={confirmDeleteModal.show} title="Potwierdzenie usunięcia" confirmLabel="Usuń kandydata" onConfirm={executeCandidateDeletion} onCancel={() => setConfirmDeleteModal({ show: false, id: null, name: '' })}>Czy na pewno chcesz usunąć kandydata <strong className="text-white">{confirmDeleteModal.name}</strong> z bazy danych? Działanie to usunie również historię.</ConfirmModal>
       <ConfirmModal isOpen={confirmDeleteOrderModal.show} title="Usuń zamówienie" confirmLabel="Usuń zamówienie" onConfirm={executeDeleteOrder} onCancel={() => setConfirmDeleteOrderModal({ show: false, id: null })}>Czy na pewno chcesz usunąć to zamówienie? Ta akcja jest bezpowrotna.</ConfirmModal>
       <ConfirmModal isOpen={isSeedConfirmOpen} tone="amber" title="Dane testowe" confirmLabel="Załaduj dane" onConfirm={executeSeedData} onCancel={() => setIsSeedConfirmOpen(false)}>Załadowanie danych testowych zastąpi obecnie wprowadzone dane przykładowym zestawem developerskim.</ConfirmModal>
