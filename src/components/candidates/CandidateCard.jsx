@@ -1,5 +1,6 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENT_STYLES, STATUS_OPTIONS_BY_STAGE } from '../../data/constants.js';
+import { formatDateTime } from '../../utils/dateUtils.js';
 
         export default function CandidateCard({ candidate, onStatusChange, onEdit, onDelete, onViewDetails, onRollback }) {
             const statusOptions = STATUS_OPTIONS_BY_STAGE[candidate.stage] || [];
@@ -62,11 +63,11 @@ className="bg-slate-950 border border-slate-800/80 p-4 rounded-xl hover:border-i
         <>
             <div className="flex items-center gap-1.5">
                 <Icons.Calendar />
-                <span>Data BHP: {candidate.bhpDate || '-'}</span>
+                <span>Data BHP: {formatDateTime(candidate.bhpDate, candidate.bhpTime)}</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-500">
                 <Icons.Calendar />
-                <span>Data AC: {candidate.assessmentDate || '-'}</span>
+                <span>Data AC: {formatDateTime(candidate.displayAssessmentDate, candidate.displayAssessmentTime)}</span>
             </div>
             {candidate.medicalDate && (
                 <div className="flex items-center gap-1.5 text-slate-500">
@@ -79,7 +80,7 @@ className="bg-slate-950 border border-slate-800/80 p-4 rounded-xl hover:border-i
         <>
             <div className="flex items-center gap-1.5">
                 <Icons.Calendar />
-                <span>Data AC: {candidate.assessmentDate || '-'}</span>
+                <span>Data AC: {formatDateTime(candidate.displayAssessmentDate, candidate.displayAssessmentTime)}</span>
             </div>
             {candidate.medicalDate && (
                 <div className="flex items-center gap-1.5 text-slate-500">
