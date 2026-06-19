@@ -47,7 +47,7 @@ export default function ActiveOrdersSection({ inactiveOrders, activeOrders, getO
         <h4 className="font-extrabold text-sm text-white uppercase tracking-wider group-hover:text-indigo-400 transition-colors">
             {order.department}
         </h4>
-        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-1">
+        <div className="inline-flex items-center gap-1.5 text-[10px] text-blue-100 mt-1 rounded-md border border-blue-500/25 bg-blue-950/45 px-2 py-1">
             <Icons.Calendar />
             <span>AC: {formatDateTime(order.assessmentDate, order.assessmentTime)}</span>
         </div>
