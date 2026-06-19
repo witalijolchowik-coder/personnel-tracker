@@ -1,5 +1,6 @@
 import Icons from '../ui/Icons.jsx';
 import { normalizeOrderGender } from '../../utils/orderUtils.js';
+import { formatDateTime } from '../../utils/dateUtils.js';
 
 export default function ActiveOrdersSection({ inactiveOrders, activeOrders, getOrderRealization, openEditOrderModal, openAddOrderModal, handleRepeatOrder, triggerDeleteOrder, onClearArchive }) {
   return (
@@ -48,7 +49,7 @@ export default function ActiveOrdersSection({ inactiveOrders, activeOrders, getO
         </h4>
         <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-1">
             <Icons.Calendar />
-            <span>AC: {order.assessmentDate}</span>
+            <span>AC: {formatDateTime(order.assessmentDate, order.assessmentTime)}</span>
         </div>
     </div>
     <span className="text-[9px] bg-slate-950 text-indigo-300 px-2 py-0.5 rounded border border-slate-850 font-semibold">
@@ -82,7 +83,7 @@ export default function ActiveOrdersSection({ inactiveOrders, activeOrders, getO
         </h4>
         <div className="flex items-center gap-1.5 text-[10px] text-slate-600 mt-1">
             <Icons.Calendar />
-            <span>AC: {order.assessmentDate}</span>
+            <span>AC: {formatDateTime(order.assessmentDate, order.assessmentTime)}</span>
         </div>
     </div>
     <span className="text-[9px] bg-slate-950 text-slate-600 px-2 py-0.5 rounded border border-slate-900 font-semibold">
