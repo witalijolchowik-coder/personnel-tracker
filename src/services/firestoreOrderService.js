@@ -82,6 +82,7 @@ export const repeatOrderDocument = async (orderId, newDate, user) => {
     count: sourceOrder.count,
     gender: normalizeOrderGender(sourceOrder.gender),
     assessmentDate: newDate,
+    assessmentTime: sourceOrder.assessmentTime || '',
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     createdBy: user.uid,
