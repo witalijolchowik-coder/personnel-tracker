@@ -4,6 +4,13 @@ import { formatDateTime } from '../../utils/dateUtils.js';
 
         export default function CandidateCard({ candidate, onStatusChange, onEdit, onDelete, onViewDetails, onRollback }) {
             const statusOptions = STATUS_OPTIONS_BY_STAGE[candidate.stage] || [];
+            const eventHighlightBase = 'flex items-center gap-1.5 rounded-lg border px-2 py-1';
+            const eventHighlightStyles = {
+                assessment: `${eventHighlightBase} bg-blue-950/45 border-blue-500/25 text-blue-100`,
+                medical: `${eventHighlightBase} bg-amber-950/35 border-amber-500/25 text-amber-100`,
+                bhp: `${eventHighlightBase} bg-emerald-950/40 border-emerald-500/25 text-emerald-100`,
+            };
+            const mutedDateClass = 'flex items-center gap-1.5 text-slate-500';
 
             return (
                 <div 
@@ -61,16 +68,16 @@ className="bg-slate-950 border border-slate-800/80 p-4 rounded-xl hover:border-i
     </div>
     {candidate.stage === 'bhp' ? (
         <>
-            <div className="flex items-center gap-1.5">
+            <div className={eventHighlightStyles.bhp}>
                 <Icons.Calendar />
                 <span>Data BHP: {formatDateTime(candidate.bhpDate, candidate.bhpTime)}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-slate-500">
+            <div className={mutedDateClass}>
                 <Icons.Calendar />
                 <span>Data AC: {formatDateTime(candidate.displayAssessmentDate, candidate.displayAssessmentTime)}</span>
             </div>
             {candidate.medicalDate && (
-                <div className="flex items-center gap-1.5 text-slate-500">
+                <div className={mutedDateClass}>
                     <Icons.Check />
                     <span>Badania: {candidate.medicalDate}</span>
                 </div>
@@ -78,12 +85,12 @@ className="bg-slate-950 border border-slate-800/80 p-4 rounded-xl hover:border-i
         </>
     ) : (
         <>
-            <div className="flex items-center gap-1.5">
+            <div className={candidate.stage === 'assessment' ? eventHighlightStyles.assessment : mutedDateClass}>
                 <Icons.Calendar />
                 <span>Data AC: {formatDateTime(candidate.displayAssessmentDate, candidate.displayAssessmentTime)}</span>
             </div>
             {candidate.medicalDate && (
-                <div className="flex items-center gap-1.5 text-slate-500">
+                <div className={candidate.stage === 'medical' ? eventHighlightStyles.medical : mutedDateClass}>
                     <Icons.Check />
                     <span>Badania: {candidate.medicalDate}</span>
                 </div>
