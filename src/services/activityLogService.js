@@ -1,6 +1,8 @@
-import { addDoc, collection, getDocs, limit, onSnapshot, orderBy, query, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { addDoc, collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase.js';
 import { buildActivityDescription, getUserFirstName } from '../utils/activityLogUtils.js';
+
+const activityLogSettingsRef = doc(db, 'systemSettings', 'activityLog');
 
 const sanitizeForLog = (value) => {
   if (value === undefined) return null;
@@ -59,13 +61,14 @@ export const subscribeToActivityLog = (onNext, onError) => {
   );
 };
 
-export const clearActivityLog = async () => {
-  const snapshot = await getDocs(collection(db, 'activityLog'));
-  const docs = snapshot.docs;
+export const subscribeToActivityLogSettings = (onNext, onError) => onSnapshot(
+  activityLogSettingsRef,
+  (snapshot) => {
+    onNext(snapshot.exists() ? snapshot.data() : { clearedAt: null });
+  },
+  onError
+);
 
-  for (let index = 0; index < docs.length; index += 500) {
-    const batch = writeBatch(db);
-    docs.slice(index, index + 500).forEach(activityDoc => batch.delete(activityDoc.ref));
-    await batch.commit();
-  }
+export const clearActivityLog = async () => {
+  await setDoc(activityLogSettingsRef, { clearedAt: serverTimestamp() }, { merge: true });
 };
