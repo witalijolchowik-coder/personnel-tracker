@@ -1,5 +1,6 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENT_STYLES } from '../../data/constants.js';
+import { formatCandidateDisplayName } from '../../utils/candidateDisplayUtils.js';
 import { formatDateTime } from '../../utils/dateUtils.js';
 
 export default function ReserveRegistry({ candidates, openDetailsModal, returnToMedicalFromReserve, assignBhpFromReserve, handleDeleteCandidate }) {
@@ -35,7 +36,7 @@ export default function ReserveRegistry({ candidates, openDetailsModal, returnTo
             <tr key={c.id} className="hover:bg-slate-850/30 transition-colors">
                 <td className="p-4">
                     <button onClick={() => openDetailsModal(c)} className="font-bold text-slate-100 hover:text-indigo-400 text-left transition-colors">
-                        {c.firstName} {c.lastName}
+                        {formatCandidateDisplayName(c)}
                     </button>
                 </td>
                 <td className="p-4">
