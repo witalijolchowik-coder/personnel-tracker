@@ -11,8 +11,8 @@ export default function ActivityLogPanel({ entries, loading, error, onClear }) {
   }, []);
 
   return (
-    <aside className="w-full xl:w-[230px] 2xl:w-[240px] xl:flex-none xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)]">
-      <section className="h-full bg-slate-900 border border-slate-800 rounded-xl shadow-xl overflow-hidden flex flex-col">
+    <aside className="w-full xl:w-[230px] 2xl:w-[240px] xl:flex-none">
+      <section className="bg-slate-900 border border-slate-800 rounded-xl shadow-xl overflow-hidden">
         <div className="p-4 border-b border-slate-800 bg-slate-950/40 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <span className="w-2 h-2 rounded-full bg-indigo-500 flex-none" />
@@ -28,7 +28,7 @@ export default function ActivityLogPanel({ entries, loading, error, onClear }) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div>
           {loading && (
             <div className="p-4 text-xs text-slate-400">Ładowanie dziennika zdarzeń...</div>
           )}
