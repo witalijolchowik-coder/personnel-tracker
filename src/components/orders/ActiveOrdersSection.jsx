@@ -4,7 +4,7 @@ import { formatDateTime } from '../../utils/dateUtils.js';
 
 export default function ActiveOrdersSection({ inactiveOrders, activeOrders, getOrderRealization, openEditOrderModal, openAddOrderModal, handleRepeatOrder, triggerDeleteOrder, onClearArchive }) {
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6">
+    <section className="w-full">
         <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
