@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import Icons from '../ui/Icons.jsx';
 import { formatActivityTime, getActivityLogDisplayModel } from '../../utils/activityLogUtils.js';
 
-export default function ActivityLogPanel({ entries, loading, error }) {
+export default function ActivityLogPanel({ entries, loading, error, onClear }) {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -10,11 +11,21 @@ export default function ActivityLogPanel({ entries, loading, error }) {
   }, []);
 
   return (
-    <aside className="w-full xl:w-[340px] 2xl:w-[360px] xl:flex-none xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)]">
+    <aside className="w-full xl:w-[230px] 2xl:w-[240px] xl:flex-none xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)]">
       <section className="h-full bg-slate-900 border border-slate-800 rounded-xl shadow-xl overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-slate-800 bg-slate-950/40 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-indigo-500" />
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-200">DZIENNIK ZDARZEŃ</h2>
+        <div className="p-4 border-b border-slate-800 bg-slate-950/40 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-2 h-2 rounded-full bg-indigo-500 flex-none" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200 leading-tight">DZIENNIK ZDARZEŃ</h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClear}
+            className="p-1 text-slate-400 hover:text-rose-400 hover:bg-slate-900 rounded transition-all flex-none"
+            title="Wyczyść dziennik zdarzeń"
+          >
+            <Icons.Trash />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
