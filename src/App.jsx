@@ -6,7 +6,6 @@ import { useOrders } from './hooks/useOrders.js';
 import { getCurrentDateOnlyString } from './utils/dateUtils.js';
 import { calculateOrderRealization, getCandidateAssessmentDate, getCandidateAssessmentTime, normalizeOrderGender, splitOrdersByActivity } from './utils/orderUtils.js';
 import { assignBhpAfterMedical, assignBhpFromReserveWithDate, changeCandidateStatus, restoreCandidateFromRejections, returnToMedicalFromReserve as returnToMedicalFromReserveWorkflow, rollbackCandidateStage, sendPassedMedicalToReserve } from './utils/candidateWorkflow.js';
-import { clearActivityLog } from './services/activityLogService.js';
 import { useAuth } from './hooks/useAuth.jsx';
 import LoginScreen from './components/auth/LoginScreen.jsx';
 import Toast from './components/ui/Toast.jsx';
@@ -37,7 +36,7 @@ function AuthenticatedApp({ currentUser, onLogout }) {
     seedCandidates,
   } = useCandidates(currentUser);
   const { orders, loading: ordersLoading, error: ordersError, createOrder, updateOrder, deleteOrder, repeatOrder, seedOrders } = useOrders(currentUser);
-  const { activityLog, loading: activityLogLoading, error: activityLogError } = useActivityLog(currentUser);
+  const { activityLog, loading: activityLogLoading, error: activityLogError, clearActivityLogView } = useActivityLog(currentUser);
   const [registrySearchQuery, setRegistrySearchQuery] = useState('');
   const [registrySelectedDept, setRegistrySelectedDept] = useState('Wszystkie');
   const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
@@ -201,9 +200,8 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   const triggerDeleteOrder = (orderId) => setConfirmDeleteOrderModal({ show: true, id: orderId });
   const executeDeleteOrder = () => { deleteOrder(confirmDeleteOrderModal.id); setIsOrderModalOpen(false); setConfirmDeleteOrderModal({ show: false, id: null }); showAlert('Zamówienie zostało usunięte.', 'info'); };
   const executeClearOrderArchive = () => { orders.filter(order => order.assessmentDate < todayDateStr).forEach(order => deleteOrder(order.id)); setIsClearArchiveConfirmOpen(false); showAlert('Archiwalne zamówienia zostały usunięte.', 'info'); };
-  const executeClearActivityLog = async () => {
-    await clearActivityLog();
-    showAlert('Dziennik zdarzeń został wyczyszczony.', 'info');
+  const executeClearActivityLog = () => {
+    clearActivityLogView();
   };
   const handleRepeatOrder = (order) => { setRepeatingOrder(order); setRepeatNewDate(''); };
   const executeRepeatOrder = () => {
