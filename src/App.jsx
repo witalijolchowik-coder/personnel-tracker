@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { STAGE_LABELS } from './data/constants.js';
+import { useActivityLog } from './hooks/useActivityLog.js';
 import { useCandidates } from './hooks/useCandidates.js';
 import { useOrders } from './hooks/useOrders.js';
 import { getCurrentDateOnlyString } from './utils/dateUtils.js';
@@ -9,6 +10,7 @@ import { useAuth } from './hooks/useAuth.jsx';
 import LoginScreen from './components/auth/LoginScreen.jsx';
 import Toast from './components/ui/Toast.jsx';
 import AppHeader from './components/layout/AppHeader.jsx';
+import ActivityLogPanel from './components/activity/ActivityLogPanel.jsx';
 import ActiveOrdersSection from './components/orders/ActiveOrdersSection.jsx';
 import KanbanBoard from './components/kanban/KanbanBoard.jsx';
 import RegistriesSection from './components/registries/RegistriesSection.jsx';
@@ -34,6 +36,7 @@ function AuthenticatedApp({ currentUser, onLogout }) {
     seedCandidates,
   } = useCandidates(currentUser);
   const { orders, loading: ordersLoading, error: ordersError, createOrder, updateOrder, deleteOrder, repeatOrder, seedOrders } = useOrders(currentUser);
+  const { activityLog, loading: activityLogLoading, error: activityLogError } = useActivityLog(currentUser);
   const [registrySearchQuery, setRegistrySearchQuery] = useState('');
   const [registrySelectedDept, setRegistrySelectedDept] = useState('Wszystkie');
   const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
@@ -235,21 +238,26 @@ function AuthenticatedApp({ currentUser, onLogout }) {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col pb-16">
       <Toast alert={customAlert} />
       <AppHeader currentUser={currentUser} onLogout={onLogout} />
+      <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-1 flex flex-col xl:flex-row gap-6">
+        <div className="min-w-0 flex-1 flex flex-col gap-6">
       {isDataLoading && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6">
+        <div className="w-full">
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-300">Ładowanie danych z Firebase...</div>
         </div>
       )}
       {dataError && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6">
+        <div className="w-full">
           <div className="bg-rose-950/40 border border-rose-500/20 rounded-xl p-4 text-sm text-rose-200">{dataError}</div>
         </div>
       )}
       <ActiveOrdersSection inactiveOrders={inactiveOrders} activeOrders={activeOrders} getOrderRealization={getOrderRealization} openEditOrderModal={openEditOrderModal} openAddOrderModal={openAddOrderModal} handleRepeatOrder={handleRepeatOrder} triggerDeleteOrder={triggerDeleteOrder} onClearArchive={() => setIsClearArchiveConfirmOpen(true)} />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6 flex-1 flex flex-col gap-8">
+      <main className="w-full flex-1 flex flex-col gap-8">
         <KanbanBoard kanbanAssessment={kanbanAssessment} kanbanMedical={kanbanMedical} kanbanBhp={kanbanBhp} openAddModal={openAddModal} handleStatusChange={handleStatusChange} openEditModal={openEditModal} handleDeleteCandidate={handleDeleteCandidate} openDetailsModal={setViewingCandidate} handleRollbackStage={handleRollbackStage} />
         <RegistriesSection registrySearchQuery={registrySearchQuery} setRegistrySearchQuery={setRegistrySearchQuery} registrySelectedDept={registrySelectedDept} setRegistrySelectedDept={setRegistrySelectedDept} filteredReserveCandidates={filteredReserveCandidates} filteredHiredCandidates={filteredHiredCandidates} filteredRejectedCandidates={filteredRejectedCandidates} openDetailsModal={setViewingCandidate} returnToMedicalFromReserve={returnToMedicalFromReserve} assignBhpFromReserve={assignBhpFromReserve} openRestoreModal={openRestoreModal} handleDeleteCandidate={handleDeleteCandidate} />
       </main>
+        </div>
+        <ActivityLogPanel entries={activityLog} loading={activityLogLoading} error={activityLogError} />
+      </div>
       <footer className="mt-auto pt-16 pb-8 text-center text-xs text-slate-500 flex flex-col items-center gap-3"><p>© 2026 Personnel Tracker. Profesjonalne narzędzie operacyjne HR.</p>{import.meta.env.DEV && <button onClick={() => setIsSeedConfirmOpen(true)} className="text-[10px] text-slate-600 hover:text-slate-400 font-medium uppercase tracking-wider transition-colors border border-slate-800/80 rounded-md px-2.5 py-1 bg-slate-950/40 hover:bg-slate-900/40">Załaduj dane testowe</button>}</footer>
       <CandidateModal isOpen={isAddEditModalOpen} editingCandidate={editingCandidate} handleSubmitForm={handleSubmitForm} activeOrders={candidateOrderOptions} selectedOrderSelection={selectedOrderSelection} setSelectedOrderSelection={setSelectedOrderSelection} getOrderRealization={getOrderRealization} formFirstName={formFirstName} setFormFirstName={setFormFirstName} formLastName={formLastName} setFormLastName={setFormLastName} formBirthDate={formBirthDate} setFormBirthDate={setFormBirthDate} formPhone={formPhone} setFormPhone={setFormPhone} formAssessmentDate={formAssessmentDate} setFormAssessmentDate={setFormAssessmentDate} formAssessmentTime={formAssessmentTime} setFormAssessmentTime={setFormAssessmentTime} formDepartment={formDepartment} setFormDepartment={setFormDepartment} onClose={() => setIsAddEditModalOpen(false)} />
       <CandidateDetailsModal candidate={activeViewingCandidate} onClose={() => setViewingCandidate(null)} />
