@@ -1,4 +1,4 @@
-import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, getDocs, limit, onSnapshot, orderBy, query, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase/firebase.js';
 import { buildActivityDescription, getUserFirstName } from '../utils/activityLogUtils.js';
 
@@ -57,4 +57,15 @@ export const subscribeToActivityLog = (onNext, onError) => {
     },
     onError
   );
+};
+
+export const clearActivityLog = async () => {
+  const snapshot = await getDocs(collection(db, 'activityLog'));
+  const docs = snapshot.docs;
+
+  for (let index = 0; index < docs.length; index += 500) {
+    const batch = writeBatch(db);
+    docs.slice(index, index + 500).forEach(activityDoc => batch.delete(activityDoc.ref));
+    await batch.commit();
+  }
 };
