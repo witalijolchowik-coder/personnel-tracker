@@ -1,9 +1,11 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENT_STYLES, STATUS_OPTIONS_BY_STAGE } from '../../data/constants.js';
+import { formatCandidateDisplayName } from '../../utils/candidateDisplayUtils.js';
 import { formatDateTime } from '../../utils/dateUtils.js';
 
         export default function CandidateCard({ candidate, onStatusChange, onEdit, onDelete, onViewDetails, onRollback }) {
             const statusOptions = STATUS_OPTIONS_BY_STAGE[candidate.stage] || [];
+            const candidateDisplayName = formatCandidateDisplayName(candidate);
             const eventHighlightBase = 'flex items-center gap-1.5 rounded-lg border px-2 py-1';
             const eventHighlightStyles = {
                 assessment: `${eventHighlightBase} bg-blue-950/45 border-blue-500/25 text-blue-100`,
@@ -25,7 +27,7 @@ className="bg-slate-950 border border-slate-800/80 p-4 rounded-xl hover:border-i
         </div>
         <div>
             <h4 className="font-bold text-slate-100 group-hover:text-white text-sm transition-colors leading-tight">
-                {candidate.firstName} {candidate.lastName}
+                {candidateDisplayName}
             </h4>
             <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold rounded border ${DEPARTMENT_STYLES[candidate.department] || ''}`}>
                 {candidate.department}
