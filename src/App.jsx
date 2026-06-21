@@ -61,7 +61,6 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   const [isSeedConfirmOpen, setIsSeedConfirmOpen] = useState(false);
   const [confirmDeleteOrderModal, setConfirmDeleteOrderModal] = useState({ show: false, id: null });
   const [isClearArchiveConfirmOpen, setIsClearArchiveConfirmOpen] = useState(false);
-  const [isClearActivityLogConfirmOpen, setIsClearActivityLogConfirmOpen] = useState(false);
   const [customAlert, setCustomAlert] = useState({ show: false, message: '', type: 'info' });
   const [confirmDeleteModal, setConfirmDeleteModal] = useState({ show: false, id: null, name: '' });
   const [formFirstName, setFormFirstName] = useState('');
@@ -204,7 +203,6 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   const executeClearOrderArchive = () => { orders.filter(order => order.assessmentDate < todayDateStr).forEach(order => deleteOrder(order.id)); setIsClearArchiveConfirmOpen(false); showAlert('Archiwalne zamówienia zostały usunięte.', 'info'); };
   const executeClearActivityLog = async () => {
     await clearActivityLog();
-    setIsClearActivityLogConfirmOpen(false);
     showAlert('Dziennik zdarzeń został wyczyszczony.', 'info');
   };
   const handleRepeatOrder = (order) => { setRepeatingOrder(order); setRepeatNewDate(''); };
@@ -263,7 +261,7 @@ function AuthenticatedApp({ currentUser, onLogout }) {
         <RegistriesSection registrySearchQuery={registrySearchQuery} setRegistrySearchQuery={setRegistrySearchQuery} registrySelectedDept={registrySelectedDept} setRegistrySelectedDept={setRegistrySelectedDept} filteredReserveCandidates={filteredReserveCandidates} filteredHiredCandidates={filteredHiredCandidates} filteredRejectedCandidates={filteredRejectedCandidates} openDetailsModal={setViewingCandidate} returnToMedicalFromReserve={returnToMedicalFromReserve} assignBhpFromReserve={assignBhpFromReserve} openRestoreModal={openRestoreModal} handleDeleteCandidate={handleDeleteCandidate} />
       </main>
         </div>
-        <ActivityLogPanel entries={activityLog} loading={activityLogLoading} error={activityLogError} onClear={() => setIsClearActivityLogConfirmOpen(true)} />
+        <ActivityLogPanel entries={activityLog} loading={activityLogLoading} error={activityLogError} onClear={executeClearActivityLog} />
       </div>
       <footer className="mt-auto pt-16 pb-8 text-center text-xs text-slate-500 flex flex-col items-center gap-3"><p>© 2026 Personnel Tracker. Profesjonalne narzędzie operacyjne HR.</p>{import.meta.env.DEV && <button onClick={() => setIsSeedConfirmOpen(true)} className="text-[10px] text-slate-600 hover:text-slate-400 font-medium uppercase tracking-wider transition-colors border border-slate-800/80 rounded-md px-2.5 py-1 bg-slate-950/40 hover:bg-slate-900/40">Załaduj dane testowe</button>}</footer>
       <CandidateModal isOpen={isAddEditModalOpen} editingCandidate={editingCandidate} handleSubmitForm={handleSubmitForm} activeOrders={candidateOrderOptions} selectedOrderSelection={selectedOrderSelection} setSelectedOrderSelection={setSelectedOrderSelection} getOrderRealization={getOrderRealization} formFirstName={formFirstName} setFormFirstName={setFormFirstName} formLastName={formLastName} setFormLastName={setFormLastName} formBirthDate={formBirthDate} setFormBirthDate={setFormBirthDate} formPhone={formPhone} setFormPhone={setFormPhone} formAssessmentDate={formAssessmentDate} setFormAssessmentDate={setFormAssessmentDate} formAssessmentTime={formAssessmentTime} setFormAssessmentTime={setFormAssessmentTime} formDepartment={formDepartment} setFormDepartment={setFormDepartment} onClose={() => setIsAddEditModalOpen(false)} />
@@ -276,7 +274,6 @@ function AuthenticatedApp({ currentUser, onLogout }) {
       <ConfirmModal isOpen={confirmDeleteOrderModal.show} title="Usuń zamówienie" confirmLabel="Usuń zamówienie" onConfirm={executeDeleteOrder} onCancel={() => setConfirmDeleteOrderModal({ show: false, id: null })}>Czy na pewno chcesz usunąć to zamówienie? Ta akcja jest bezpowrotna.</ConfirmModal>
       <ConfirmModal isOpen={isSeedConfirmOpen} tone="amber" title="Dane testowe" confirmLabel="Załaduj dane" onConfirm={executeSeedData} onCancel={() => setIsSeedConfirmOpen(false)}>Załadowanie danych testowych zastąpi obecnie wprowadzone dane przykładowym zestawem developerskim.</ConfirmModal>
       <ConfirmModal isOpen={isClearArchiveConfirmOpen} title="Wyczyść archiwum zamówień" confirmLabel="Oczyść archiwum" onConfirm={executeClearOrderArchive} onCancel={() => setIsClearArchiveConfirmOpen(false)}>Czy na pewno chcesz usunąć wszystkie archiwalne zamówienia z systemu? Ta akcja jest bezpowrotna.</ConfirmModal>
-      <ConfirmModal isOpen={isClearActivityLogConfirmOpen} title="Wyczyść dziennik zdarzeń" confirmLabel="Usuń" onConfirm={executeClearActivityLog} onCancel={() => setIsClearActivityLogConfirmOpen(false)}>Czy na pewno chcesz wyczyścić dziennik zdarzeń?<br /><br />Ta operacja usunie wszystkie wpisy z historii.</ConfirmModal>
     </div>
   );
 }
