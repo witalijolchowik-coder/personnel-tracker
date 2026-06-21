@@ -1,7 +1,10 @@
 import Icons from '../ui/Icons.jsx';
 
+import { formatCandidateDisplayName } from '../../utils/candidateDisplayUtils.js';
+
 export default function BhpDateModal({ candidate, bhpDate, setBhpDate, bhpTime, setBhpTime, source, onConfirm, onSendToReserve, onClose }) {
   if (!candidate) return null;
+  const candidateDisplayName = formatCandidateDisplayName(candidate);
 
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm">
@@ -11,7 +14,7 @@ export default function BhpDateModal({ candidate, bhpDate, setBhpDate, bhpTime, 
           <h3 className="text-lg font-bold text-white">Wyznacz datę BHP</h3>
         </div>
         <p className="text-sm text-slate-300 mb-4">
-          Kandydat <strong className="text-white">{candidate.firstName} {candidate.lastName}</strong>
+          Kandydat <strong className="text-white">{candidateDisplayName}</strong>
           {' '}zostanie skierowany na etap BHP i zatrudnienie.
         </p>
         <div className="space-y-4 mb-6">

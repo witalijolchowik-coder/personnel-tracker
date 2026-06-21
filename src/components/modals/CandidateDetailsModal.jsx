@@ -1,9 +1,11 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENT_STYLES } from '../../data/constants.js';
+import { formatCandidateDisplayName } from '../../utils/candidateDisplayUtils.js';
 import { formatDateTime } from '../../utils/dateUtils.js';
 
 export default function CandidateDetailsModal({ candidate, onClose }) {
   if (!candidate) return null;
+  const candidateDisplayName = formatCandidateDisplayName(candidate);
   return (
         <div className="fixed inset-0 z-[100] overflow-y-auto flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
             <div className="bg-slate-900 border border-slate-800/80 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden transform transition-all duration-300">
@@ -29,7 +31,7 @@ export default function CandidateDetailsModal({ candidate, onClose }) {
         {candidate.firstName[0]}{candidate.lastName[0]}
     </div>
     <div>
-        <h4 className="text-base font-bold text-white">{candidate.firstName} {candidate.lastName}</h4>
+        <h4 className="text-base font-bold text-white">{candidateDisplayName}</h4>
         <p className="text-xs text-slate-400">Data urodzenia: {candidate.birthDate || "Brak danych"}</p>
     </div>
                         </div>

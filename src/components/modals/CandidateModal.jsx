@@ -1,16 +1,18 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENTS } from '../../data/constants.js';
+import { formatCandidateDisplayName } from '../../utils/candidateDisplayUtils.js';
 import { formatDateTime } from '../../utils/dateUtils.js';
 
 export default function CandidateModal({ isOpen, editingCandidate, handleSubmitForm, activeOrders, selectedOrderSelection, setSelectedOrderSelection, getOrderRealization, formFirstName, setFormFirstName, formLastName, setFormLastName, formBirthDate, setFormBirthDate, formPhone, setFormPhone, formAssessmentDate, setFormAssessmentDate, formAssessmentTime, setFormAssessmentTime, formDepartment, setFormDepartment, onClose }) {
   if (!isOpen) return null;
+  const editingCandidateName = editingCandidate ? formatCandidateDisplayName(editingCandidate) : '';
   return (
         <div className="fixed inset-0 z-[100] overflow-y-auto flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
             <div className="bg-slate-900 border border-slate-800/80 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden transform transition-all duration-300">
                 <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-800 flex justify-between items-center">
                     <h3 className="text-base font-bold text-white flex items-center gap-2">
                         <Icons.UserAdd />
-                        {editingCandidate ? `Edytuj kandydata: ${editingCandidate.firstName} ${editingCandidate.lastName}` : "Dodaj nowego kandydata"}
+                        {editingCandidate ? `Edytuj kandydata: ${editingCandidateName}` : "Dodaj nowego kandydata"}
                     </h3>
                     <button 
                         onClick={() => onClose()} 
