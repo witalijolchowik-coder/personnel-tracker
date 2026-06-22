@@ -1,25 +1,37 @@
 import Icons from '../ui/Icons.jsx';
-import { DEPARTMENT_STYLES, STAGE_LABELS, STATUS_OPTIONS_BY_STAGE } from '../../data/constants.js';
+import { DEPARTMENT_STYLES, STATUS_OPTIONS_BY_STAGE } from '../../data/constants.js';
 import { formatCandidateAgeLabel, getCandidateAge } from '../../utils/candidateDisplayUtils.js';
+
+const ClockIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
 
 const stageStyles = {
   assessment: {
     icon: Icons.Calendar,
-    bar: 'bg-blue-950/35 border-blue-500/30 text-blue-200 shadow-[0_0_18px_rgba(59,130,246,0.10)]',
+    shortLabel: 'AC',
+    bar: 'bg-blue-950/30 border-blue-500/30 text-blue-200 shadow-[0_0_14px_rgba(59,130,246,0.08)]',
     dot: 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.50)]',
     label: 'text-blue-200',
+    historyIcon: 'text-blue-400',
   },
   medical: {
     icon: Icons.Check,
-    bar: 'bg-amber-950/30 border-amber-500/30 text-amber-200 shadow-[0_0_18px_rgba(245,158,11,0.10)]',
+    shortLabel: 'Badania',
+    bar: 'bg-amber-950/25 border-amber-500/30 text-amber-200 shadow-[0_0_14px_rgba(245,158,11,0.08)]',
     dot: 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.45)]',
     label: 'text-amber-200',
+    historyIcon: 'text-amber-400',
   },
   bhp: {
     icon: Icons.Briefcase,
-    bar: 'bg-emerald-950/35 border-emerald-500/30 text-emerald-200 shadow-[0_0_18px_rgba(16,185,129,0.12)]',
+    shortLabel: 'BHP',
+    bar: 'bg-emerald-950/30 border-emerald-500/30 text-emerald-200 shadow-[0_0_14px_rgba(16,185,129,0.10)]',
     dot: 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.50)]',
     label: 'text-emerald-200',
+    historyIcon: 'text-emerald-400',
   },
 };
 
@@ -36,21 +48,24 @@ const formatDisplayDateTime = (date, time) => {
   return time || 'Nie ustalono';
 };
 
-const getCurrentTerm = (candidate) => {
+const getCurrentTermParts = (candidate) => {
   if (candidate.stage === 'bhp') {
-    return formatDisplayDateTime(candidate.bhpDate, candidate.bhpTime);
+    return { date: formatDisplayDate(candidate.bhpDate) || 'Nie ustalono', time: candidate.bhpTime || '' };
   }
   if (candidate.stage === 'medical') {
-    return formatDisplayDateTime(candidate.medicalDate);
+    return { date: formatDisplayDate(candidate.medicalDate) || 'Nie ustalono', time: '' };
   }
-  return formatDisplayDateTime(candidate.displayAssessmentDate, candidate.displayAssessmentTime);
+  return {
+    date: formatDisplayDate(candidate.displayAssessmentDate) || 'Nie ustalono',
+    time: candidate.displayAssessmentTime || '',
+  };
 };
 
 const getHistoryItems = (candidate) => {
   const items = [];
 
   if (candidate.stage === 'bhp' && candidate.medicalDate) {
-    items.push({ label: 'Badania', value: formatDisplayDate(candidate.medicalDate), icon: Icons.Check });
+    items.push({ label: 'Badania', value: formatDisplayDate(candidate.medicalDate), icon: Icons.Check, tone: stageStyles.medical.historyIcon });
   }
 
   if ((candidate.stage === 'medical' || candidate.stage === 'bhp') && candidate.displayAssessmentDate) {
@@ -58,6 +73,7 @@ const getHistoryItems = (candidate) => {
       label: 'Data AC',
       value: formatDisplayDateTime(candidate.displayAssessmentDate, candidate.displayAssessmentTime),
       icon: Icons.Calendar,
+      tone: stageStyles.assessment.historyIcon,
     });
   }
 
@@ -71,6 +87,7 @@ export default function CandidateCard({ candidate, onStatusChange, onEdit, onDel
   const ageLabel = age === null ? '' : formatCandidateAgeLabel(age);
   const stageTone = stageStyles[candidate.stage] || stageStyles.assessment;
   const StageIcon = stageTone.icon;
+  const currentTerm = getCurrentTermParts(candidate);
   const historyItems = getHistoryItems(candidate);
 
   return (
@@ -98,7 +115,7 @@ export default function CandidateCard({ candidate, onStatusChange, onEdit, onDel
             </div>
           </div>
 
-          <div className="mt-2 rounded-lg border border-blue-500/25 bg-blue-950/20 px-3 py-1.5 text-xs text-slate-200 shadow-[0_0_16px_rgba(59,130,246,0.08)] flex items-center gap-2 max-w-[calc(100%-0.25rem)]">
+          <div className="mt-2 rounded-lg border border-blue-500/25 bg-blue-950/20 px-3 py-1.5 text-xs text-slate-200 shadow-[0_0_16px_rgba(59,130,246,0.08)] inline-flex items-center gap-2 max-w-full">
             <Icons.Phone />
             <span className="font-semibold tracking-wide truncate">{candidate.phone}</span>
           </div>
@@ -133,35 +150,37 @@ export default function CandidateCard({ candidate, onStatusChange, onEdit, onDel
 
       <div className="my-2.5 border-t border-slate-800/70" />
 
-      <div>
-        <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 mb-1">ETAP AKTUALNY</div>
-        <div className={`rounded-xl border px-3 py-2 flex items-center justify-between ${stageTone.bar}`}>
-          <div className="flex items-center gap-2.5 min-w-0">
-            <StageIcon />
-            <span className={`text-xs font-black uppercase tracking-wider truncate ${stageTone.label}`}>
-              {STAGE_LABELS[candidate.stage]}
-            </span>
-          </div>
+      <div className="grid grid-cols-[minmax(82px,0.75fr)_minmax(0,1.35fr)] gap-2 items-center">
+        <div className="flex items-center gap-2 min-w-0">
           <span className={`w-2.5 h-2.5 rounded-full flex-none ${stageTone.dot}`} />
+          <StageIcon />
+          <span className={`text-sm font-black tracking-wide truncate ${stageTone.label}`}>
+            {stageTone.shortLabel}
+          </span>
         </div>
-      </div>
-
-      <div className="mt-2">
-        <div className={`rounded-xl border px-3 py-2 flex items-center gap-2.5 text-sm font-extrabold ${stageTone.bar}`}>
+        <div className={`rounded-xl border px-2.5 py-2 flex items-center gap-2 text-[13px] font-bold min-w-0 ${stageTone.bar}`}>
           <Icons.Calendar />
-          <span className="truncate">{getCurrentTerm(candidate)}</span>
+          <span className="truncate">{currentTerm.date}</span>
+          {currentTerm.time && (
+            <>
+              <span className="h-5 w-px bg-current/35 flex-none" />
+              <ClockIcon />
+              <span className="truncate">{currentTerm.time}</span>
+            </>
+          )}
         </div>
       </div>
 
       {historyItems.length > 0 && (
         <div className="mt-2.5 border-t border-slate-800/70">
+          <div className="pt-2 pb-0.5 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">POPRZEDNIE ETAPY</div>
           {historyItems.map((item) => {
             const ItemIcon = item.icon;
             return (
               <div key={item.label} className="py-1.5 border-b border-slate-800/55 last:border-b-0 flex items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2 text-slate-400">
+                <div className={`flex items-center gap-2 ${item.tone || 'text-slate-400'}`}>
                   <ItemIcon />
-                  <span className="font-semibold">{item.label}</span>
+                  <span className="font-semibold text-slate-300">{item.label}</span>
                 </div>
                 <span className="text-slate-500 font-semibold text-right">{item.value}</span>
               </div>
@@ -170,7 +189,7 @@ export default function CandidateCard({ candidate, onStatusChange, onEdit, onDel
         </div>
       )}
 
-      <div className="pt-2.5 border-t border-slate-800/70" onClick={(event) => event.stopPropagation()}>
+      <div className="mt-2.5 pt-2.5 border-t border-slate-800/70" onClick={(event) => event.stopPropagation()}>
         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.18em] mb-1">STATUS</label>
         <select
           className="w-full px-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-xl text-sm font-semibold text-slate-200 hover:text-white transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
