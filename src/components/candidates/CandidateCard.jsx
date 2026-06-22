@@ -5,21 +5,18 @@ import { formatCandidateAgeLabel, getCandidateAge } from '../../utils/candidateD
 const stageStyles = {
   assessment: {
     icon: Icons.Calendar,
-    termTitle: 'TERMIN AC',
     bar: 'bg-blue-950/35 border-blue-500/30 text-blue-200 shadow-[0_0_18px_rgba(59,130,246,0.10)]',
     dot: 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.50)]',
     label: 'text-blue-200',
   },
   medical: {
     icon: Icons.Check,
-    termTitle: 'TERMIN BADAŃ',
     bar: 'bg-amber-950/30 border-amber-500/30 text-amber-200 shadow-[0_0_18px_rgba(245,158,11,0.10)]',
     dot: 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.45)]',
     label: 'text-amber-200',
   },
   bhp: {
     icon: Icons.Briefcase,
-    termTitle: 'TERMIN BHP',
     bar: 'bg-emerald-950/35 border-emerald-500/30 text-emerald-200 shadow-[0_0_18px_rgba(16,185,129,0.12)]',
     dot: 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.50)]',
     label: 'text-emerald-200',
@@ -82,20 +79,29 @@ export default function CandidateCard({ candidate, onStatusChange, onEdit, onDel
       className="bg-slate-950 border border-slate-800/80 p-3 rounded-xl hover:border-indigo-500/80 transition-all cursor-pointer group hover:shadow-lg hover:shadow-indigo-950/25 relative"
     >
       <div className="flex items-start gap-3">
-        <div className="w-11 h-11 rounded-xl bg-indigo-950/80 text-indigo-300 flex items-center justify-center font-extrabold text-base border border-indigo-800/50 shadow-inner">
-          {candidate.firstName[0]}{candidate.lastName[0]}
-        </div>
-
         <div className="min-w-0 flex-1">
-          <div className="flex items-start gap-2">
-            <h4 className="font-extrabold text-slate-100 group-hover:text-white text-[15px] transition-colors leading-tight truncate">
-              {fullName}
-            </h4>
-            <span className={`flex-none px-2 py-0.5 text-[10px] font-semibold rounded border ${DEPARTMENT_STYLES[candidate.department] || ''}`}>
-              {candidate.department}
-            </span>
+          <div className="flex items-start gap-3">
+            <div className="w-12 h-12 rounded-xl bg-indigo-950/80 text-indigo-300 flex items-center justify-center font-extrabold text-base border border-indigo-800/50 shadow-inner flex-none">
+              {candidate.firstName[0]}{candidate.lastName[0]}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start gap-2 min-w-0">
+                <h4 className="font-extrabold text-slate-100 group-hover:text-white text-[15px] transition-colors leading-tight truncate">
+                  {fullName}
+                </h4>
+                <span className={`flex-none px-2 py-0.5 text-[10px] font-semibold rounded border ${DEPARTMENT_STYLES[candidate.department] || ''}`}>
+                  {candidate.department}
+                </span>
+              </div>
+              {ageLabel && <div className="mt-1 text-xs font-semibold text-slate-500">{ageLabel}</div>}
+            </div>
           </div>
-          {ageLabel && <div className="mt-1 text-xs font-semibold text-slate-500">{ageLabel}</div>}
+
+          <div className="mt-2 rounded-lg border border-blue-500/25 bg-blue-950/20 px-3 py-1.5 text-xs text-slate-200 shadow-[0_0_16px_rgba(59,130,246,0.08)] flex items-center gap-2 max-w-[calc(100%-0.25rem)]">
+            <Icons.Phone />
+            <span className="font-semibold tracking-wide truncate">{candidate.phone}</span>
+          </div>
         </div>
 
         <div className="flex flex-col items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity" onClick={(event) => event.stopPropagation()}>
@@ -125,11 +131,6 @@ export default function CandidateCard({ candidate, onStatusChange, onEdit, onDel
         </div>
       </div>
 
-      <div className="mt-2.5 rounded-lg border border-blue-500/25 bg-blue-950/20 px-3 py-1.5 text-xs text-slate-200 shadow-[0_0_16px_rgba(59,130,246,0.08)] flex items-center gap-2">
-        <Icons.Phone />
-        <span className="font-semibold tracking-wide">{candidate.phone}</span>
-      </div>
-
       <div className="my-2.5 border-t border-slate-800/70" />
 
       <div>
@@ -145,8 +146,7 @@ export default function CandidateCard({ candidate, onStatusChange, onEdit, onDel
         </div>
       </div>
 
-      <div className="mt-2.5">
-        <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 mb-1">{stageTone.termTitle}</div>
+      <div className="mt-2">
         <div className={`rounded-xl border px-3 py-2 flex items-center gap-2.5 text-sm font-extrabold ${stageTone.bar}`}>
           <Icons.Calendar />
           <span className="truncate">{getCurrentTerm(candidate)}</span>
