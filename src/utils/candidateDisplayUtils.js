@@ -1,4 +1,4 @@
-const getAgeLabel = (age) => {
+export const formatCandidateAgeLabel = (age) => {
   const lastDigit = age % 10;
   const lastTwoDigits = age % 100;
   const suffix = lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14) ? 'lata' : 'lat';
@@ -23,5 +23,5 @@ export const getCandidateAge = (birthDate, now = new Date()) => {
 export const formatCandidateDisplayName = (candidate) => {
   const fullName = [candidate.firstName, candidate.lastName].filter(Boolean).join(' ').trim();
   const age = getCandidateAge(candidate.birthDate);
-  return age === null ? fullName : `${fullName}, ${getAgeLabel(age)}`;
+  return age === null ? fullName : `${fullName}, ${formatCandidateAgeLabel(age)}`;
 };
