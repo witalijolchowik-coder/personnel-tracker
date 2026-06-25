@@ -21,6 +21,8 @@ import RepeatOrderModal from './components/modals/RepeatOrderModal.jsx';
 import RestoreCandidateModal from './components/modals/RestoreCandidateModal.jsx';
 import ConfirmModal from './components/modals/ConfirmModal.jsx';
 import BhpDateModal from './components/modals/BhpDateModal.jsx';
+import CandidateImportModal from './components/modals/CandidateImportModal.jsx';
+import CandidateExportModal from './components/modals/CandidateExportModal.jsx';
 
 function AuthenticatedApp({ currentUser, onLogout }) {
   const {
@@ -40,6 +42,8 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   const [registrySearchQuery, setRegistrySearchQuery] = useState('');
   const [registrySelectedDept, setRegistrySelectedDept] = useState('Wszystkie');
   const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
+  const [isCandidateImportOpen, setIsCandidateImportOpen] = useState(false);
+  const [candidateExportStage, setCandidateExportStage] = useState(null);
   const [editingCandidate, setEditingCandidate] = useState(null);
   const [viewingCandidate, setViewingCandidate] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -188,6 +192,32 @@ function AuthenticatedApp({ currentUser, onLogout }) {
     setIsAddEditModalOpen(false);
   };
 
+  const handleCandidateImport = async (rows, skippedCount) => {
+    const results = await Promise.all(rows.map(row => {
+      const selectedOrder = row.assessmentSelection === 'manual'
+        ? null
+        : orders.find(order => order.id === row.assessmentSelection);
+
+      return createCandidate({
+        firstName: row.firstName,
+        lastName: row.lastName,
+        birthDate: row.birthDate,
+        phone: row.phone,
+        department: selectedOrder ? selectedOrder.department : row.department,
+        orderId: selectedOrder ? selectedOrder.id : null,
+        assessmentDate: selectedOrder ? null : '',
+        assessmentTime: selectedOrder ? null : '',
+      });
+    }));
+    const importedCount = results.filter(Boolean).length;
+    const failedCount = rows.length - importedCount;
+    const totalSkipped = skippedCount + failedCount;
+    showAlert(
+      `Zaimportowano ${importedCount} kandydatów.${totalSkipped ? ` Pominięto ${totalSkipped} wierszy.` : ''}`,
+      importedCount ? 'success' : 'info'
+    );
+  };
+
   const openAddOrderModal = () => { setEditingOrder(null); setOrderDept('Metal'); setOrderCount(1); setOrderGender('Mężczyźni i kobiety'); setOrderACDate(''); setOrderACTime(''); setIsOrderModalOpen(true); };
   const openEditOrderModal = (order) => { setEditingOrder(order); setOrderDept(order.department); setOrderCount(order.count); setOrderGender(normalizeOrderGender(order.gender)); setOrderACDate(order.assessmentDate || ''); setOrderACTime(order.assessmentTime || ''); setIsOrderModalOpen(true); };
   const saveOrder = (event) => {
@@ -255,7 +285,7 @@ function AuthenticatedApp({ currentUser, onLogout }) {
       )}
       <ActiveOrdersSection inactiveOrders={inactiveOrders} activeOrders={activeOrders} getOrderRealization={getOrderRealization} openEditOrderModal={openEditOrderModal} openAddOrderModal={openAddOrderModal} handleRepeatOrder={handleRepeatOrder} triggerDeleteOrder={triggerDeleteOrder} onClearArchive={() => setIsClearArchiveConfirmOpen(true)} />
       <main className="w-full flex-1 flex flex-col gap-8">
-        <KanbanBoard kanbanAssessment={kanbanAssessment} kanbanMedical={kanbanMedical} kanbanBhp={kanbanBhp} openAddModal={openAddModal} handleStatusChange={handleStatusChange} openEditModal={openEditModal} handleDeleteCandidate={handleDeleteCandidate} openDetailsModal={setViewingCandidate} handleRollbackStage={handleRollbackStage} />
+        <KanbanBoard kanbanAssessment={kanbanAssessment} kanbanMedical={kanbanMedical} kanbanBhp={kanbanBhp} openAddModal={openAddModal} handleStatusChange={handleStatusChange} openEditModal={openEditModal} handleDeleteCandidate={handleDeleteCandidate} openDetailsModal={setViewingCandidate} handleRollbackStage={handleRollbackStage} onImportCandidates={() => setIsCandidateImportOpen(true)} onExportCandidates={setCandidateExportStage} />
         <RegistriesSection registrySearchQuery={registrySearchQuery} setRegistrySearchQuery={setRegistrySearchQuery} registrySelectedDept={registrySelectedDept} setRegistrySelectedDept={setRegistrySelectedDept} filteredReserveCandidates={filteredReserveCandidates} filteredHiredCandidates={filteredHiredCandidates} filteredRejectedCandidates={filteredRejectedCandidates} openDetailsModal={setViewingCandidate} returnToMedicalFromReserve={returnToMedicalFromReserve} assignBhpFromReserve={assignBhpFromReserve} openRestoreModal={openRestoreModal} handleDeleteCandidate={handleDeleteCandidate} />
       </main>
         </div>
@@ -268,6 +298,8 @@ function AuthenticatedApp({ currentUser, onLogout }) {
       <RepeatOrderModal order={repeatingOrder} repeatNewDate={repeatNewDate} setRepeatNewDate={setRepeatNewDate} onClose={() => setRepeatingOrder(null)} onConfirm={executeRepeatOrder} />
       <RestoreCandidateModal candidate={restoringCandidate} restoreNewDate={restoreNewDate} setRestoreNewDate={setRestoreNewDate} onClose={() => setRestoringCandidate(null)} onConfirm={executeRestoreFromRejections} />
       <BhpDateModal candidate={bhpCandidate} bhpDate={bhpDate} setBhpDate={setBhpDate} bhpTime={bhpTime} setBhpTime={setBhpTime} source={bhpModalSource} onConfirm={executeBhpAssignment} onSendToReserve={executeSendPassedMedicalToReserve} onClose={closeBhpModal} />
+      <CandidateImportModal isOpen={isCandidateImportOpen} activeOrders={activeOrders} getOrderRealization={getOrderRealization} onClose={() => setIsCandidateImportOpen(false)} onImport={handleCandidateImport} />
+      <CandidateExportModal stage={candidateExportStage} candidates={candidateExportStage === 'assessment' ? kanbanAssessment : candidateExportStage === 'medical' ? kanbanMedical : candidateExportStage === 'bhp' ? kanbanBhp : []} onClose={() => setCandidateExportStage(null)} />
       <ConfirmModal isOpen={confirmDeleteModal.show} title="Potwierdzenie usunięcia" confirmLabel="Usuń kandydata" onConfirm={executeCandidateDeletion} onCancel={() => setConfirmDeleteModal({ show: false, id: null, name: '' })}>Czy na pewno chcesz usunąć kandydata <strong className="text-white">{confirmDeleteModal.name}</strong> z bazy danych? Działanie to usunie również historię.</ConfirmModal>
       <ConfirmModal isOpen={confirmDeleteOrderModal.show} title="Usuń zamówienie" confirmLabel="Usuń zamówienie" onConfirm={executeDeleteOrder} onCancel={() => setConfirmDeleteOrderModal({ show: false, id: null })}>Czy na pewno chcesz usunąć to zamówienie? Ta akcja jest bezpowrotna.</ConfirmModal>
       <ConfirmModal isOpen={isSeedConfirmOpen} tone="amber" title="Dane testowe" confirmLabel="Załaduj dane" onConfirm={executeSeedData} onCancel={() => setIsSeedConfirmOpen(false)}>Załadowanie danych testowych zastąpi obecnie wprowadzone dane przykładowym zestawem developerskim.</ConfirmModal>
