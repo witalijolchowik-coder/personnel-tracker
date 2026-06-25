@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 
 export const CANDIDATE_EXCEL_HEADERS = ['Imię', 'Nazwisko', 'Data urodzenia', 'Telefon'];
+const REQUIRED_IMPORT_HEADERS = ['Imię', 'Nazwisko'];
 
 const normalizeText = (value) => String(value ?? '').trim();
 
@@ -33,7 +34,6 @@ const validateRow = (row) => {
   const errors = [];
   if (!row.firstName) errors.push('Brak imienia');
   if (!row.lastName) errors.push('Brak nazwiska');
-  if (!row.phone) errors.push('Brak telefonu');
   return errors;
 };
 
@@ -44,7 +44,7 @@ export const readCandidateImportFile = async (file) => {
 
   const sheetRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
   const headers = (sheetRows[0] || []).map(normalizeText);
-  const missingHeaders = CANDIDATE_EXCEL_HEADERS.filter(header => !headers.includes(header));
+  const missingHeaders = REQUIRED_IMPORT_HEADERS.filter(header => !headers.includes(header));
   if (missingHeaders.length > 0) {
     throw new Error(`Brak wymaganych kolumn: ${missingHeaders.join(', ')}`);
   }
