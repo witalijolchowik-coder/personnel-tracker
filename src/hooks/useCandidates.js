@@ -12,6 +12,7 @@ const hasChangedFields = (candidate, patch, fields) => fields.some(field => (
 ));
 
 const normalizeCandidate = (candidate) => ({
+  phone: '',
   medicalDate: null,
   bhpDate: null,
   bhpTime: null,
