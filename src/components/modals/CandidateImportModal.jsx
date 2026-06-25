@@ -1,7 +1,24 @@
 import { useRef, useState } from 'react';
 import { DEPARTMENTS } from '../../data/constants.js';
 import { downloadCandidateImportTemplate, readCandidateImportFile } from '../../utils/candidateExcelUtils.js';
-import { formatDateTime } from '../../utils/dateUtils.js';
+
+const assessmentTileStyles = {
+  Metal: { idle: 'border-blue-500/30 text-blue-300 hover:border-blue-400/60', selected: 'border-blue-400 text-blue-200 shadow-[0_0_12px_rgba(96,165,250,0.20)]' },
+  Szwalnia: { idle: 'border-violet-500/30 text-violet-300 hover:border-violet-400/60', selected: 'border-violet-400 text-violet-200 shadow-[0_0_12px_rgba(167,139,250,0.20)]' },
+  Magazyn: { idle: 'border-emerald-500/30 text-emerald-300 hover:border-emerald-400/60', selected: 'border-emerald-400 text-emerald-200 shadow-[0_0_12px_rgba(52,211,153,0.20)]' },
+  'Podsofity/PU': { idle: 'border-cyan-500/30 text-cyan-300 hover:border-cyan-400/60', selected: 'border-cyan-400 text-cyan-200 shadow-[0_0_12px_rgba(34,211,238,0.20)]' },
+  Montaż: { idle: 'border-orange-500/30 text-orange-300 hover:border-orange-400/60', selected: 'border-orange-400 text-orange-200 shadow-[0_0_12px_rgba(251,146,60,0.20)]' },
+};
+
+const defaultTileStyle = {
+  idle: 'border-indigo-500/30 text-indigo-300 hover:border-indigo-400/60',
+  selected: 'border-indigo-400 text-indigo-200 shadow-[0_0_12px_rgba(129,140,248,0.20)]',
+};
+
+const formatAssessmentDate = date => {
+  const match = String(date || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return match ? `${match[3]}.${match[2]}.${match[1]}` : date || 'Brak daty';
+};
 
 export default function CandidateImportModal({ isOpen, activeOrders, getOrderRealization, onClose, onImport }) {
   const inputRef = useRef(null);
@@ -118,47 +135,61 @@ export default function CandidateImportModal({ isOpen, activeOrders, getOrderRea
                         <td className="p-3 text-slate-300">{row.phone || '-'}</td>
                         <td className="p-3">
                           {!row.skipped && row.errors.length === 0 && (
-                            <div className="flex flex-wrap gap-1.5">
-                              {activeOrders.map(order => (
+                            <div>
+                              <div className="flex flex-nowrap items-stretch gap-1.5 overflow-x-auto pb-1">
+                                {activeOrders.map(order => {
+                                  const isSelected = row.assessmentSelection === order.id;
+                                  const tileStyle = assessmentTileStyles[order.department] || defaultTileStyle;
+                                  return (
+                                    <button
+                                      type="button"
+                                      key={order.id}
+                                      onClick={() => updateRow(row.rowNumber, { assessmentSelection: order.id })}
+                                      className={`relative flex-none w-[112px] h-[58px] rounded-lg border bg-slate-950/70 px-2 py-1.5 text-left transition-all ${
+                                        isSelected ? tileStyle.selected : tileStyle.idle
+                                      }`}
+                                    >
+                                      {isSelected && (
+                                        <span className="absolute right-1.5 top-1 text-[9px] font-black" aria-hidden="true">✓</span>
+                                      )}
+                                      <div className="pr-3 text-[10px] leading-tight font-black uppercase truncate">{order.department}</div>
+                                      <div className="mt-0.5 text-[8px] leading-tight font-bold text-slate-400">
+                                        {getOrderRealization(order)} / {order.count}
+                                      </div>
+                                      <div className="mt-1 flex items-center justify-between gap-1 text-[8px] leading-none text-slate-500">
+                                        <span className="truncate">{formatAssessmentDate(order.assessmentDate)}</span>
+                                        <span className="flex-none text-slate-400">{order.assessmentTime || '--:--'}</span>
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                                <div className="w-px self-stretch bg-slate-700/80 mx-0.5 flex-none" aria-hidden="true" />
                                 <button
                                   type="button"
-                                  key={order.id}
-                                  onClick={() => updateRow(row.rowNumber, { assessmentSelection: order.id })}
-                                  className={`px-2 py-1 rounded-md border text-[9px] font-bold transition-colors ${
-                                    row.assessmentSelection === order.id
-                                      ? 'bg-indigo-600/25 border-indigo-500 text-indigo-200'
-                                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'
+                                  onClick={() => updateRow(row.rowNumber, {
+                                    assessmentSelection: 'manual',
+                                    department: row.department || DEPARTMENTS[0],
+                                  })}
+                                  className={`flex-none h-[58px] px-2.5 rounded-lg border text-[9px] font-bold transition-colors ${
+                                    row.assessmentSelection === 'manual'
+                                      ? 'bg-slate-700/70 border-slate-500 text-white'
+                                      : 'bg-slate-950 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
                                   }`}
                                 >
-                                  {order.department} · {formatDateTime(order.assessmentDate, order.assessmentTime)}
-                                  {' · '}{getOrderRealization(order)}/{order.count}
+                                  Utwórz ręcznie
                                 </button>
-                              ))}
-                              <button
-                                type="button"
-                                onClick={() => updateRow(row.rowNumber, {
-                                  assessmentSelection: 'manual',
-                                  department: row.department || DEPARTMENTS[0],
-                                })}
-                                className={`px-2 py-1 rounded-md border text-[9px] font-bold transition-colors ${
-                                  row.assessmentSelection === 'manual'
-                                    ? 'bg-indigo-600/25 border-indigo-500 text-indigo-200'
-                                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'
-                                }`}
-                              >
-                                Ręcznie
-                              </button>
-                              {row.assessmentSelection === 'manual' && (
-                                <select
-                                  value={row.department || DEPARTMENTS[0]}
-                                  onChange={event => updateRow(row.rowNumber, { department: event.target.value })}
-                                  className="px-2 py-1 bg-slate-950 border border-slate-700 rounded-md text-[9px] text-slate-200"
-                                >
-                                  {DEPARTMENTS.map(department => (
-                                    <option key={department} value={department}>{department}</option>
-                                  ))}
-                                </select>
-                              )}
+                                {row.assessmentSelection === 'manual' && (
+                                  <select
+                                    value={row.department || DEPARTMENTS[0]}
+                                    onChange={event => updateRow(row.rowNumber, { department: event.target.value })}
+                                    className="flex-none h-[58px] px-2 bg-slate-950 border border-slate-700 rounded-lg text-[9px] text-slate-200"
+                                  >
+                                    {DEPARTMENTS.map(department => (
+                                      <option key={department} value={department}>{department}</option>
+                                    ))}
+                                  </select>
+                                )}
+                              </div>
                             </div>
                           )}
                           {!row.skipped && row.errors.length > 0 && (
