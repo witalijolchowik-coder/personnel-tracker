@@ -32,6 +32,17 @@ export default function KanbanColumn({ stage, title, candidates, onStatusChange,
           >
             <Icons.Export />
           </button>
+          {stage === 'assessment' && (
+            <button
+              type="button"
+              onClick={onAddCandidate}
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-800 bg-slate-900/70 text-slate-500 hover:text-blue-300 hover:border-blue-500/30 transition-colors"
+              title="Dodaj kandydata"
+              aria-label="Dodaj kandydata"
+            >
+              <Icons.Plus />
+            </button>
+          )}
           <span className={`${tone.count} border text-xs font-bold px-2.5 py-0.5 rounded-full`}>{candidates.length}</span>
         </div>
       </div>
@@ -41,11 +52,6 @@ export default function KanbanColumn({ stage, title, candidates, onStatusChange,
         ) : candidates.map(candidate => (
           <CandidateCard key={candidate.id} candidate={candidate} onStatusChange={onStatusChange} onEdit={onEdit} onDelete={onDelete} onViewDetails={onViewDetails} onRollback={onRollback} />
         ))}
-        {stage === 'assessment' && (
-          <div className="mt-auto pt-2">
-            <button onClick={onAddCandidate} className="w-full py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-300 hover:text-indigo-200 font-bold text-xs tracking-wider uppercase transition-all rounded-lg border border-indigo-500/20 hover:border-indigo-500/45 flex items-center justify-center gap-2 shadow-lg shadow-indigo-950/10 active:scale-[0.98]"><Icons.UserAdd /><span>Dodaj kandydata</span></button>
-          </div>
-        )}
       </div>
     </div>
   );
