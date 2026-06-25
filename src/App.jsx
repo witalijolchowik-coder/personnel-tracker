@@ -157,7 +157,7 @@ function AuthenticatedApp({ currentUser, onLogout }) {
   };
   const openEditModal = (candidate, event) => {
     if (event) event.stopPropagation();
-    setEditingCandidate(candidate); setFormFirstName(candidate.firstName); setFormLastName(candidate.lastName); setFormBirthDate(candidate.birthDate || ''); setFormPhone(candidate.phone); setFormAssessmentDate(candidate.assessmentDate || ''); setFormAssessmentTime(candidate.assessmentTime || ''); setFormDepartment(candidate.department); setSelectedOrderSelection(candidate.orderId || 'manual'); setIsAddEditModalOpen(true);
+    setEditingCandidate(candidate); setFormFirstName(candidate.firstName); setFormLastName(candidate.lastName); setFormBirthDate(candidate.birthDate || ''); setFormPhone(candidate.phone || ''); setFormAssessmentDate(candidate.assessmentDate || ''); setFormAssessmentTime(candidate.assessmentTime || ''); setFormDepartment(candidate.department); setSelectedOrderSelection(candidate.orderId || 'manual'); setIsAddEditModalOpen(true);
   };
   const handleDeleteCandidate = (candidateId, event) => {
     if (event) event.stopPropagation();
@@ -299,7 +299,7 @@ function AuthenticatedApp({ currentUser, onLogout }) {
       <RestoreCandidateModal candidate={restoringCandidate} restoreNewDate={restoreNewDate} setRestoreNewDate={setRestoreNewDate} onClose={() => setRestoringCandidate(null)} onConfirm={executeRestoreFromRejections} />
       <BhpDateModal candidate={bhpCandidate} bhpDate={bhpDate} setBhpDate={setBhpDate} bhpTime={bhpTime} setBhpTime={setBhpTime} source={bhpModalSource} onConfirm={executeBhpAssignment} onSendToReserve={executeSendPassedMedicalToReserve} onClose={closeBhpModal} />
       <CandidateImportModal isOpen={isCandidateImportOpen} activeOrders={activeOrders} getOrderRealization={getOrderRealization} onClose={() => setIsCandidateImportOpen(false)} onImport={handleCandidateImport} />
-      <CandidateExportModal stage={candidateExportStage} candidates={candidateExportStage === 'assessment' ? kanbanAssessment : candidateExportStage === 'medical' ? kanbanMedical : candidateExportStage === 'bhp' ? kanbanBhp : []} onClose={() => setCandidateExportStage(null)} />
+      <CandidateExportModal stage={candidateExportStage} candidates={candidateExportStage === 'assessment' ? kanbanAssessment : candidateExportStage === 'medical' ? kanbanMedical : candidateExportStage === 'bhp' ? kanbanBhp : []} activeOrders={activeOrders} onClose={() => setCandidateExportStage(null)} />
       <ConfirmModal isOpen={confirmDeleteModal.show} title="Potwierdzenie usunięcia" confirmLabel="Usuń kandydata" onConfirm={executeCandidateDeletion} onCancel={() => setConfirmDeleteModal({ show: false, id: null, name: '' })}>Czy na pewno chcesz usunąć kandydata <strong className="text-white">{confirmDeleteModal.name}</strong> z bazy danych? Działanie to usunie również historię.</ConfirmModal>
       <ConfirmModal isOpen={confirmDeleteOrderModal.show} title="Usuń zamówienie" confirmLabel="Usuń zamówienie" onConfirm={executeDeleteOrder} onCancel={() => setConfirmDeleteOrderModal({ show: false, id: null })}>Czy na pewno chcesz usunąć to zamówienie? Ta akcja jest bezpowrotna.</ConfirmModal>
       <ConfirmModal isOpen={isSeedConfirmOpen} tone="amber" title="Dane testowe" confirmLabel="Załaduj dane" onConfirm={executeSeedData} onCancel={() => setIsSeedConfirmOpen(false)}>Załadowanie danych testowych zastąpi obecnie wprowadzone dane przykładowym zestawem developerskim.</ConfirmModal>
