@@ -83,8 +83,8 @@ export default function CandidateImportModal({ isOpen, activeOrders, getOrderRea
           <div className="p-4 sm:p-5 space-y-4">
             <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <div className="text-xs font-bold text-slate-300">Wymagane kolumny</div>
-                <div className="text-xs text-slate-500 mt-1">Imię, Nazwisko, Data urodzenia, Telefon</div>
+                <div className="text-xs font-bold text-slate-300">Kolumny importu</div>
+                <div className="text-xs text-slate-500 mt-1">Wymagane: Imię, Nazwisko · Opcjonalne: Data urodzenia, Telefon</div>
                 {fileName && <div className="text-xs text-indigo-300 mt-2">Wybrano: {fileName}</div>}
                 {fileError && <div className="text-xs text-rose-300 mt-2">{fileError}</div>}
               </div>

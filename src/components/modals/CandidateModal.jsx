@@ -58,10 +58,9 @@ export default function CandidateModal({ isOpen, editingCandidate, handleSubmitF
     />
                         </div>
                         <div>
-    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Telefon *</label>
+    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Telefon</label>
     <input 
         type="tel" 
-        required
         placeholder="np. 601202303"
         className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
         value={formPhone}
