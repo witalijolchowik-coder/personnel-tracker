@@ -1,6 +1,8 @@
 import Icons from '../ui/Icons.jsx';
 
 import { formatCandidateDisplayName } from '../../utils/candidateDisplayUtils.js';
+import DateField from '../forms/DateField.jsx';
+import TimeField from '../forms/TimeField.jsx';
 
 export default function BhpDateModal({ candidate, bhpDate, setBhpDate, bhpTime, setBhpTime, source, onConfirm, onSendToReserve, onClose }) {
   if (!candidate) return null;
@@ -20,21 +22,17 @@ export default function BhpDateModal({ candidate, bhpDate, setBhpDate, bhpTime, 
         <div className="space-y-4 mb-6">
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Data BHP *</label>
-            <input
-              type="date"
+            <DateField
               required
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
               value={bhpDate}
-              onChange={(event) => setBhpDate(event.target.value)}
+              onChange={setBhpDate}
             />
           </div>
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Godzina BHP</label>
-            <input
-              type="time"
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
+            <TimeField
               value={bhpTime}
-              onChange={(event) => setBhpTime(event.target.value)}
+              onChange={setBhpTime}
             />
           </div>
         </div>

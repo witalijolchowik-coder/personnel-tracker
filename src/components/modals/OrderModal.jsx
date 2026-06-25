@@ -1,6 +1,8 @@
 import Icons from '../ui/Icons.jsx';
 import { DEPARTMENTS } from '../../data/constants.js';
 import { ORDER_GENDERS } from '../../utils/orderUtils.js';
+import DateField from '../forms/DateField.jsx';
+import TimeField from '../forms/TimeField.jsx';
 
 export default function OrderModal({ isOpen, editingOrder, saveOrder, orderDept, setOrderDept, orderCount, setOrderCount, orderGender, setOrderGender, orderACDate, setOrderACDate, orderACTime, setOrderACTime, triggerDeleteOrder, onClose }) {
   if (!isOpen) return null;
@@ -63,21 +65,11 @@ export default function OrderModal({ isOpen, editingOrder, saveOrder, orderDept,
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                         <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Data AC</label>
-                        <input 
-    type="date" 
-    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
-    value={orderACDate}
-    onChange={(e) => setOrderACDate(e.target.value)}
-                        />
+                        <DateField value={orderACDate} onChange={setOrderACDate} />
                         </div>
                         <div>
                         <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Godzina AC</label>
-                        <input
-    type="time"
-    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
-    value={orderACTime}
-    onChange={(e) => setOrderACTime(e.target.value)}
-                        />
+                        <TimeField value={orderACTime} onChange={setOrderACTime} />
                         </div>
                     </div>
     

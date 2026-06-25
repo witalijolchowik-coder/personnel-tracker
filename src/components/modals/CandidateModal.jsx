@@ -2,6 +2,8 @@ import Icons from '../ui/Icons.jsx';
 import { DEPARTMENTS } from '../../data/constants.js';
 import { formatCandidateDisplayName } from '../../utils/candidateDisplayUtils.js';
 import { formatDateTime } from '../../utils/dateUtils.js';
+import DateField from '../forms/DateField.jsx';
+import TimeField from '../forms/TimeField.jsx';
 
 export default function CandidateModal({ isOpen, editingCandidate, handleSubmitForm, activeOrders, selectedOrderSelection, setSelectedOrderSelection, getOrderRealization, formFirstName, setFormFirstName, formLastName, setFormLastName, formBirthDate, setFormBirthDate, formPhone, setFormPhone, formAssessmentDate, setFormAssessmentDate, formAssessmentTime, setFormAssessmentTime, formDepartment, setFormDepartment, onClose }) {
   if (!isOpen) return null;
@@ -49,11 +51,10 @@ export default function CandidateModal({ isOpen, editingCandidate, handleSubmitF
                     <div className="grid grid-cols-2 gap-4">
                         <div>
     <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Data urodzenia</label>
-    <input 
-        type="date" 
-        className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
+    <DateField
         value={formBirthDate}
-        onChange={(e) => setFormBirthDate(e.target.value)}
+        onChange={setFormBirthDate}
+        maxYear={new Date().getFullYear()}
     />
                         </div>
                         <div>
@@ -125,11 +126,9 @@ export default function CandidateModal({ isOpen, editingCandidate, handleSubmitF
                         <div className="grid grid-cols-2 gap-4 pt-1 transition-all duration-300">
     <div>
         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Data AC</label>
-        <input 
-            type="date" 
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
+        <DateField
             value={formAssessmentDate}
-            onChange={(e) => setFormAssessmentDate(e.target.value)}
+            onChange={setFormAssessmentDate}
         />
     </div>
     <div>
@@ -146,11 +145,9 @@ export default function CandidateModal({ isOpen, editingCandidate, handleSubmitF
     </div>
     <div>
         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Godzina AC</label>
-        <input
-            type="time"
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500"
+        <TimeField
             value={formAssessmentTime}
-            onChange={(e) => setFormAssessmentTime(e.target.value)}
+            onChange={setFormAssessmentTime}
         />
     </div>
                         </div>
