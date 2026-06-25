@@ -109,7 +109,10 @@ export default function TimeField({
           onBlur={() => commitDraft(draft)}
           onPaste={event => {
             event.preventDefault();
-            const text = event.clipboardData.getData('text');
+            const text = (
+              event.clipboardData.getData('text/plain')
+              || event.clipboardData.getData('text')
+            ).trim();
             setDraft(text);
             commitDraft(text);
           }}
@@ -118,7 +121,7 @@ export default function TimeField({
         <button
           type="button"
           onClick={openPicker}
-          className="h-9 w-10 flex items-center justify-center text-slate-400 hover:text-indigo-300 border-l border-slate-800 transition-colors"
+          className="h-9 w-10 flex items-center justify-center border-l border-slate-700 bg-slate-900/60 text-sky-300 transition-colors hover:bg-slate-800/80 hover:text-sky-200 [&_svg]:stroke-current"
           title="Wybierz godzinę"
         >
           <ClockIcon />
